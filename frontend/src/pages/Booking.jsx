@@ -6,10 +6,12 @@ import {
 
 import Modal from '../components/Modal';
 import { useToast } from '../contexts/ToastContext';
+import { useAppContext } from '../contexts/AppContext';
 
 export default function Booking() {
   const [mounted, setMounted] = useState(false);
   const { showToast } = useToast();
+  const { addBooking } = useAppContext();
   
   // Modal & Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +26,7 @@ export default function Booking() {
     e.preventDefault();
     setIsSubmitting(true);
     setTimeout(() => {
+      addBooking({ title: formData.title, date: formData.date, startTime: formData.startTime, endTime: formData.endTime });
       setIsSubmitting(false);
       setIsModalOpen(false);
       setFormData({ date: '2026-07-07', startTime: '10:30', endTime: '11:30', title: '' });

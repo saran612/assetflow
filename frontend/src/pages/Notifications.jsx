@@ -2,9 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { 
   Filter, Download, AlertTriangle, Sparkles
 } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
 
 export default function Notifications() {
   const [mounted, setMounted] = useState(false);
+  const { showToast } = useToast();
+  const [activeTab, setActiveTab] = useState('All');
+  const [readIds, setReadIds] = useState(new Set());
+  const [showExtra, setShowExtra] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -57,6 +62,55 @@ export default function Notifications() {
     }
   ];
 
+  const extraNotifications = [
+    {
+      id: 7,
+      text: <>Laptop <span className="font-bold text-slate-900">AF-0120</span> decommissioned</>,
+      type: 'Assignment',
+      time: '3d ago',
+      dot: 'bg-slate-400'
+    },
+    {
+      id: 8,
+      text: <>Booking cancelled : <span className="font-bold text-slate-900">Room C1 : 4:00 PM</span></>,
+      type: 'Room',
+      time: '4d ago',
+      dot: 'bg-amber-400'
+    }
+  ];
+
+  const allNotifications = showExtra ? [...notifications, ...extraNotifications] : notifications;
+
+  const filteredNotifications = allNotifications.filter(item => {
+    if (activeTab === 'All') return true;
+    if (activeTab === 'Alerts') return item.type === 'Pending' || item.type === 'Audit';
+    if (activeTab === 'Approvals') return item.type === 'Approval' || item.type === 'Assignment';
+    if (activeTab === 'Bookings') return item.type === 'Room';
+    return true;
+  });
+
+  const handleMarkAllRead = () => {
+    setReadIds(new Set(allNotifications.map(n => n.id)));
+    showToast('All notifications marked as read', 'success');
+  };
+
+  const handleExport = () => {
+    const headers = ['ID', 'Type', 'Time'];
+    const csvContent = [
+      headers.join(','),
+      ...allNotifications.map(n => `${n.id},${n.type},${n.time}`)
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'notifications_export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Notification logs exported', 'success');
+  };
+
   return (
     <div 
       className="max-w-[1000px] mx-auto flex flex-col gap-6 animate-[fadeIn_0.3s_ease-out]"
@@ -74,10 +128,16 @@ export default function Notifications() {
           <p className="text-[0.95rem] text-slate-500 mt-1 font-medium">Operational updates across your enterprise.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[0.8rem] font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm">
+          <button 
+            onClick={() => setActiveTab('All')}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[0.8rem] font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm"
+          >
             <Filter className="w-4 h-4" /> Filter
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[0.8rem] font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm">
+          <button 
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-[0.8rem] font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm"
+          >
             <Download className="w-4 h-4" /> Export Logs
           </button>
         </div>
@@ -85,11 +145,12 @@ export default function Notifications() {
 
       {/* Tabs */}
       <div className="flex items-center gap-2">
-        {['All', 'Alerts', 'Approvals', 'Bookings'].map((tab, i) => (
+        {['All', 'Alerts', 'Approvals', 'Bookings'].map((tab) => (
            <button 
-             key={tab} 
+             key={tab}
+             onClick={() => setActiveTab(tab)}
              className={`px-5 py-2 rounded-full text-[0.8rem] font-bold transition-colors ${
-               i === 0 
+               activeTab === tab 
                  ? 'bg-slate-100 text-slate-800' 
                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
              }`}
@@ -103,12 +164,12 @@ export default function Notifications() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
          {/* Mark all as read */}
          <div className="p-4 flex justify-end border-b border-slate-100">
-           <button className="text-[0.8rem] font-bold text-[#2b1fcc] hover:text-[#2015a3] hover:underline transition-all">Mark all as read</button>
+           <button onClick={handleMarkAllRead} className="text-[0.8rem] font-bold text-[#2b1fcc] hover:text-[#2015a3] hover:underline transition-all">Mark all as read</button>
          </div>
 
          {/* List items */}
          <div className="flex flex-col">
-            {notifications.map((item) => (
+            {filteredNotifications.map((item) => (
               <div key={item.id} className="flex items-start justify-between p-6 border-b border-slate-100 hover:bg-slate-50/50 transition-colors cursor-pointer group">
                 <div>
                    <p className="text-[0.95rem] text-slate-700 font-medium group-hover:text-slate-900 transition-colors">{item.text}</p>
@@ -116,7 +177,7 @@ export default function Notifications() {
                 </div>
                 <div className="flex flex-col items-end gap-2">
                    <span className="text-[0.7rem] font-bold text-slate-400">{item.time}</span>
-                   <div className={`w-1.5 h-1.5 rounded-full ${item.dot}`}></div>
+                   {!readIds.has(item.id) && <div className={`w-1.5 h-1.5 rounded-full ${item.dot}`}></div>}
                 </div>
               </div>
             ))}
@@ -124,8 +185,12 @@ export default function Notifications() {
 
          {/* Load more */}
          <div className="p-6 flex justify-center">
-            <button className="px-6 py-2.5 bg-white border border-slate-200 rounded-lg text-[0.8rem] font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 transition-all shadow-sm">
-              Load more activities
+            <button 
+              onClick={() => { setShowExtra(true); showToast('Loaded more activities', 'success'); }}
+              disabled={showExtra}
+              className={`px-6 py-2.5 bg-white border border-slate-200 rounded-lg text-[0.8rem] font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 transition-all shadow-sm ${showExtra ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {showExtra ? 'No more activities' : 'Load more activities'}
             </button>
          </div>
       </div>

@@ -4,10 +4,12 @@ import {
   Info, ChevronDown 
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { useAppContext } from '../contexts/AppContext';
 
 export default function Allocation() {
   const [mounted, setMounted] = useState(false);
   const { showToast } = useToast();
+  const { allocationHistory, addAllocationEntry } = useAppContext();
   
   // Form State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,6 +28,7 @@ export default function Allocation() {
     
     setIsSubmitting(true);
     setTimeout(() => {
+      addAllocationEntry({ to: formData.to, reason: formData.reason });
       setIsSubmitting(false);
       setFormData({ to: '', reason: '' });
       showToast('Transfer request submitted successfully', 'success');
@@ -167,20 +170,26 @@ export default function Allocation() {
             
             <div className="relative pl-4 border-l border-slate-100 flex flex-col gap-8">
               
-              <div className="relative">
-                <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-[#2b1fcc] ring-4 ring-white"></div>
-                <p className="text-[0.65rem] font-bold text-slate-500 mb-1">Mar 12, 2023</p>
-                <p className="text-sm font-medium text-slate-600 leading-snug">Allocated to <span className="font-bold text-slate-800">Priya shah</span><br/>Engineering</p>
-              </div>
-
-              <div className="relative">
-                <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-slate-200 ring-4 ring-white"></div>
-                <p className="text-[0.65rem] font-bold text-slate-500 mb-1">Jan 04, 2023</p>
-                <p className="text-sm font-medium text-slate-600 leading-snug mb-2">Returned by <span className="font-bold text-slate-800">Arjun Nair</span></p>
-                <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2 py-1 rounded text-[0.65rem] font-bold text-slate-500">
-                  <Info className="w-3 h-3 text-slate-400" /> condition: good
+              {allocationHistory.map((entry) => (
+                <div key={entry.id} className="relative">
+                  <div className={`absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full ring-4 ring-white ${entry.active ? 'bg-[#2b1fcc]' : 'bg-slate-200'}`}></div>
+                  <p className="text-[0.65rem] font-bold text-slate-500 mb-1">{entry.date}</p>
+                  <p className="text-sm font-medium text-slate-600 leading-snug">
+                    {entry.action} <span className="font-bold text-slate-800">{entry.person}</span>
+                    {entry.dept && <><br/>{entry.dept}</>}
+                  </p>
+                  {entry.condition && (
+                    <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2 py-1 rounded text-[0.65rem] font-bold text-slate-500 mt-2">
+                      <Info className="w-3 h-3 text-slate-400" /> condition: {entry.condition}
+                    </div>
+                  )}
+                  {entry.reason && (
+                    <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2 py-1 rounded text-[0.65rem] font-bold text-slate-500 mt-2">
+                      <Info className="w-3 h-3 text-slate-400" /> reason: {entry.reason}
+                    </div>
+                  )}
                 </div>
-              </div>
+              ))}
 
             </div>
           </div>
