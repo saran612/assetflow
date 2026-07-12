@@ -71,7 +71,7 @@ def request_transfer(
 def approve_transfer(
     transfer_id: int,
     db: Session = Depends(get_db),
-    current_user: Employee = Depends(require_role(["admin"]))
+    current_user: Employee = Depends(require_role(["admin", "asset_manager", "department_head"]))
 ):
     # 1. Fetch Transfer Request
     transfer = db.query(AssetTransfer).filter(AssetTransfer.id == transfer_id).first()
@@ -81,6 +81,14 @@ def approve_transfer(
             detail="Transfer request not found"
         )
         
+    if current_user.role == "department_head":
+        target_employee = db.query(Employee).filter(Employee.id == transfer.target_employee_id).first()
+        if not target_employee or target_employee.department_id != current_user.department_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Department heads can only approve transfers to employees within their own department"
+            )
+
     if transfer.status != "pending":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -135,7 +143,7 @@ def approve_transfer(
 def reject_transfer(
     transfer_id: int,
     db: Session = Depends(get_db),
-    current_user: Employee = Depends(require_role(["admin"]))
+    current_user: Employee = Depends(require_role(["admin", "asset_manager", "department_head"]))
 ):
     # 1. Fetch Transfer Request
     transfer = db.query(AssetTransfer).filter(AssetTransfer.id == transfer_id).first()
@@ -145,6 +153,14 @@ def reject_transfer(
             detail="Transfer request not found"
         )
         
+    if current_user.role == "department_head":
+        target_employee = db.query(Employee).filter(Employee.id == transfer.target_employee_id).first()
+        if not target_employee or target_employee.department_id != current_user.department_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Department heads can only reject transfers to employees within their own department"
+            )
+
     if transfer.status != "pending":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

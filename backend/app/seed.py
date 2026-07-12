@@ -71,6 +71,24 @@ def seed_db(db: Session):
             "role": "employee",
             "department_name": "Human Resources",
             "is_active": True
+        },
+        {
+            "email": "assetmanager@assetflow.com",
+            "password": "assetmanagerpassword123",
+            "first_name": "Asset",
+            "last_name": "Manager",
+            "role": "asset_manager",
+            "department_name": "Operations",
+            "is_active": True
+        },
+        {
+            "email": "depthead@assetflow.com",
+            "password": "deptheadpassword123",
+            "first_name": "Dept",
+            "last_name": "Head",
+            "role": "department_head",
+            "department_name": "Engineering",
+            "is_active": True
         }
     ]
     

@@ -16,7 +16,7 @@ router = APIRouter(
 def allocate_asset(
     req: AllocationRequest,
     db: Session = Depends(get_db),
-    current_user: Employee = Depends(require_role(["admin"]))
+    current_user: Employee = Depends(require_role(["admin", "asset_manager"]))
 ):
     # 1. Fetch Asset
     asset = db.query(Asset).filter(Asset.id == req.asset_id).first()

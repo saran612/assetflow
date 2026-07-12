@@ -82,7 +82,7 @@ def verify_audit_item(
     item_id: int,
     verification: AuditItemVerification,
     db: Session = Depends(get_db),
-    current_user: Employee = Depends(get_current_employee)
+    current_user: Employee = Depends(require_role(["admin", "asset_manager"]))
 ):
     # 1. Fetch AuditItem
     item = db.query(AuditItem).filter(AuditItem.id == item_id).first()

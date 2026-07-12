@@ -30,7 +30,7 @@ async def register_asset(
     cost: Optional[Decimal] = Form(None),
     photo: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
-    current_user: Employee = Depends(require_role(["admin"]))
+    current_user: Employee = Depends(require_role(["admin", "asset_manager"]))
 ):
     # Verify serial number uniqueness
     existing_serial = db.query(Asset).filter(Asset.serial_number == serial_number).first()

@@ -31,7 +31,7 @@ class Employee(Base):
     password_hash = Column(String, nullable=False)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
-    role = Column(String, default="employee", nullable=False)  # 'admin' or 'employee'
+    role = Column(String, default="employee", nullable=False)  # 'admin', 'asset_manager', 'department_head', or 'employee'
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
 

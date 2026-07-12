@@ -58,7 +58,7 @@ def create_maintenance_request(
 def approve_maintenance(
     maintenance_id: int,
     db: Session = Depends(get_db),
-    current_user: Employee = Depends(require_role(["admin"]))
+    current_user: Employee = Depends(require_role(["admin", "asset_manager"]))
 ):
     mreq = db.query(AssetMaintenance).filter(AssetMaintenance.id == maintenance_id).first()
     if not mreq:
@@ -90,7 +90,7 @@ def assign_technician(
     maintenance_id: int,
     req: TechnicianAssignmentRequest,
     db: Session = Depends(get_db),
-    current_user: Employee = Depends(require_role(["admin"]))
+    current_user: Employee = Depends(require_role(["admin", "asset_manager"]))
 ):
     mreq = db.query(AssetMaintenance).filter(AssetMaintenance.id == maintenance_id).first()
     if not mreq:
@@ -122,7 +122,7 @@ def assign_technician(
 def start_maintenance(
     maintenance_id: int,
     db: Session = Depends(get_db),
-    current_user: Employee = Depends(require_role(["admin"]))
+    current_user: Employee = Depends(require_role(["admin", "asset_manager"]))
 ):
     mreq = db.query(AssetMaintenance).filter(AssetMaintenance.id == maintenance_id).first()
     if not mreq:
@@ -158,7 +158,7 @@ def start_maintenance(
 def resolve_maintenance(
     maintenance_id: int,
     db: Session = Depends(get_db),
-    current_user: Employee = Depends(require_role(["admin"]))
+    current_user: Employee = Depends(require_role(["admin", "asset_manager"]))
 ):
     mreq = db.query(AssetMaintenance).filter(AssetMaintenance.id == maintenance_id).first()
     if not mreq:
