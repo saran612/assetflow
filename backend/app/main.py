@@ -3,13 +3,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.database import engine, Base, SessionLocal
 from app.seed import seed_db
-from app.routers import auth, org
+from fastapi.staticfiles import StaticFiles
+import os
+from app.routers import auth, org, assets, allocations, transfers
 from app.auth import get_current_employee
 from app.models import Employee
 from app.schemas import EmployeeResponse
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Ensure uploads directory exists inside container
+    os.makedirs("/workspace/uploads", exist_ok=True)
+    
     # Initialize DB tables
     Base.metadata.create_all(bind=engine)
     
@@ -38,9 +43,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount Uploads directory
+app.mount("/uploads", StaticFiles(directory="/workspace/uploads"), name="uploads")
+
 # Include Routers
 app.include_router(auth.router)
 app.include_router(org.router)
+app.include_router(assets.router)
+app.include_router(allocations.router)
+app.include_router(transfers.router)
 
 @app.get("/")
 def read_root():
@@ -49,3 +60,4 @@ def read_root():
 @app.get("/users/me", response_model=EmployeeResponse)
 def get_me(current_employee: Employee = Depends(get_current_employee)):
     return current_employee
+
