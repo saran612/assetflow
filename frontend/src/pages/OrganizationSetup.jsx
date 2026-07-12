@@ -11,12 +11,26 @@ const initialDepartments = [
   { id: 3, name: 'FIELD OPS (EAST)', headName: 'sana iqbal', headTitle: 'Field Coordinator', avatar: '5', parentDept: 'Field Ops', status: 'Inactive', date: 'Sep 15, 2023', color: 'bg-slate-400', nested: true }
 ];
 
+const initialCategories = [
+  { id: 1, name: 'IT EQUIPMENT', items: 452, status: 'Active', date: 'Oct 24, 2023', color: 'bg-indigo-500' },
+  { id: 2, name: 'VEHICLES', items: 84, status: 'Active', date: 'Oct 20, 2023', color: 'bg-emerald-500' },
+  { id: 3, name: 'OFFICE FURNITURE', items: 1205, status: 'Active', date: 'Oct 15, 2023', color: 'bg-amber-500' }
+];
+
+const initialEmployees = [
+  { id: 1, name: 'alex sterling', title: 'Operations Dir.', dept: 'Facilities', email: 'alex@assetflow.co', status: 'Active', avatar: '11' },
+  { id: 2, name: 'sana iqbal', title: 'Field Coordinator', dept: 'Field Ops', email: 'sana@assetflow.co', status: 'On Leave', avatar: '5' },
+  { id: 3, name: 'rohan mehta', title: 'Operations Lead', dept: 'Facilities', email: 'rohan@assetflow.co', status: 'Active', avatar: '12' }
+];
+
 export default function OrganizationSetup() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('Departments');
   
   // Data State
   const [departments, setDepartments] = useState(initialDepartments);
+  const [categories, setCategories] = useState(initialCategories);
+  const [employees, setEmployees] = useState(initialEmployees);
   const [searchQuery, setSearchQuery] = useState('');
   
   // Modal State
@@ -32,6 +46,8 @@ export default function OrganizationSetup() {
   }, []);
 
   const filteredDepartments = departments.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || d.headName.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredCategories = categories.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()) || e.dept.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const openAddModal = () => {
     setModalMode('add');
@@ -240,22 +256,141 @@ export default function OrganizationSetup() {
           </div>
         </div>
       ) : activeTab === 'Categories' ? (
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-12 flex flex-col items-center justify-center animate-[fadeIn_0.3s_ease-out] text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-            <Archive className="w-8 h-8 text-slate-400" />
+        <div className="animate-[fadeIn_0.3s_ease-out]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#2b1fcc] transition-colors" />
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search categories..." 
+                className="w-80 bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-all duration-300 focus:ring-4 focus:ring-indigo-500/20 focus:border-[#2b1fcc] shadow-sm"
+              />
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 animate-pulse-soft">
+                <Plus className="w-4 h-4" /> Add Category
+              </button>
+            </div>
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">Categories Configuration</h3>
-          <p className="text-slate-500 max-w-sm">Define asset categories and taxonomies to keep your operations organized. (Module coming soon)</p>
-          <button className="mt-6 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:-translate-y-0.5 transition-all active:scale-95">Configure Categories</button>
+
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 border-b border-slate-200">
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[40%]">Category Name</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[20%]">Total Items</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[15%]">Status</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[20%]">Last Modified</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[5%] text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredCategories.length === 0 ? (
+                     <tr><td colSpan={5} className="py-8 text-center text-slate-500">No categories found matching your search.</td></tr>
+                  ) : filteredCategories.map((cat) => (
+                    <tr key={cat.id} className="group hover:bg-slate-50/80 transition-colors duration-150 cursor-pointer">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-2 h-2 rounded-full ${cat.color}`}></div>
+                          <span className="font-bold text-slate-900 text-sm tracking-tight uppercase">{cat.name}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-sm font-semibold text-slate-700">{cat.items}</td>
+                      <td className="py-4 px-6">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold group-hover:shadow-sm group-hover:saturate-150 transition-all">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> {cat.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-sm text-slate-500">{cat.date}</td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <button onClick={(e) => { e.stopPropagation(); alert('Edit category'); }} className="p-1.5 text-slate-400 hover:text-[#2b1fcc] hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                          <button onClick={(e) => { e.stopPropagation(); alert('More options'); }} className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"><MoreVertical className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-12 flex flex-col items-center justify-center animate-[fadeIn_0.3s_ease-out] text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-            <Users className="w-8 h-8 text-slate-400" />
+        <div className="animate-[fadeIn_0.3s_ease-out]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#2b1fcc] transition-colors" />
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search employees..." 
+                className="w-80 bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-all duration-300 focus:ring-4 focus:ring-indigo-500/20 focus:border-[#2b1fcc] shadow-sm"
+              />
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 animate-pulse-soft">
+                <Plus className="w-4 h-4" /> Add Employee
+              </button>
+            </div>
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">Employee Directory Sync</h3>
-          <p className="text-slate-500 max-w-sm">Manage employee roles, access permissions, and sync data with your HRIS provider.</p>
-          <button className="mt-6 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:-translate-y-0.5 transition-all active:scale-95">Connect HRIS</button>
+
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 border-b border-slate-200">
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[35%]">Employee Name</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[25%]">Contact</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[20%]">Department</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[15%]">Status</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[5%] text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredEmployees.length === 0 ? (
+                     <tr><td colSpan={5} className="py-8 text-center text-slate-500">No employees found matching your search.</td></tr>
+                  ) : filteredEmployees.map((emp) => (
+                    <tr key={emp.id} className="group hover:bg-slate-50/80 transition-colors duration-150 cursor-pointer">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <img src={`https://i.pravatar.cc/150?img=${emp.avatar}`} alt={emp.name} className="w-9 h-9 rounded-full shadow-sm" />
+                          <div>
+                            <div className="font-semibold text-slate-900 text-sm capitalize">{emp.name}</div>
+                            <div className="text-[0.75rem] text-slate-500">{emp.title}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-sm text-slate-600">{emp.email}</td>
+                      <td className="py-4 px-6 text-sm font-semibold text-slate-700">{emp.dept}</td>
+                      <td className="py-4 px-6">
+                        {emp.status === 'Active' ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold group-hover:shadow-sm group-hover:saturate-150 transition-all">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Active
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold group-hover:shadow-sm transition-all">
+                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> On Leave
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <button onClick={(e) => { e.stopPropagation(); alert('Edit employee'); }} className="p-1.5 text-slate-400 hover:text-[#2b1fcc] hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                          <button onClick={(e) => { e.stopPropagation(); alert('More options'); }} className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"><MoreVertical className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
 

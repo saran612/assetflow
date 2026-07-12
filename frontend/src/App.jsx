@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardOverview from './pages/DashboardOverview';
 import OrganizationSetup from './pages/OrganizationSetup';
+import Assets from './pages/Assets';
+import Booking from './pages/Booking';
 import './App.css';
 
 export default function App() {
@@ -17,6 +19,8 @@ export default function App() {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardOverview />} />
           <Route path="/organization-setup" element={<OrganizationSetup />} />
+          <Route path="/assets" element={<Assets />} />
+          <Route path="/booking" element={<Booking />} />
           
           {/* Catch-all for other sidebar links currently not implemented */}
           <Route path="*" element={
