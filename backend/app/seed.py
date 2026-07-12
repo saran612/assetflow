@@ -167,6 +167,114 @@ def seed_db(db: Session):
             "status": "retired",
             "purchase_date": date(2020, 1, 10),
             "cost": Decimal("1200.00")
+        },
+        {
+            "name": "iPad Pro 11\"",
+            "serial_number": "IPDPRO001",
+            "category_name": "Phones",
+            "employee_email": None,
+            "status": "available",
+            "purchase_date": date(2026, 5, 20),
+            "cost": Decimal("799.00")
+        },
+        {
+            "name": "Logitech MX Master 3S",
+            "serial_number": "LOGMX001",
+            "category_name": "Furniture",
+            "employee_email": "hr@assetflow.com",
+            "status": "allocated",
+            "purchase_date": date(2026, 5, 22),
+            "cost": Decimal("99.99")
+        },
+        {
+            "name": "Standing Desk 60x30",
+            "serial_number": "STNDDSK01",
+            "category_name": "Furniture",
+            "employee_email": None,
+            "status": "available",
+            "purchase_date": date(2026, 5, 25),
+            "cost": Decimal("499.00")
+        },
+        {
+            "name": "ThinkPad X1 Carbon",
+            "serial_number": "TPX1C001",
+            "category_name": "Laptops",
+            "employee_email": None,
+            "status": "available",
+            "purchase_date": date(2026, 5, 28),
+            "cost": Decimal("1899.99")
+        },
+        {
+            "name": "Dell Latitude 5420",
+            "serial_number": "DELLAT001",
+            "category_name": "Laptops",
+            "employee_email": None,
+            "status": "available",
+            "purchase_date": date(2026, 6, 1),
+            "cost": Decimal("1200.00")
+        },
+        {
+            "name": "Samsung Odyssey G9",
+            "serial_number": "SAMG9001",
+            "category_name": "Monitors",
+            "employee_email": None,
+            "status": "available",
+            "purchase_date": date(2026, 6, 2),
+            "cost": Decimal("1399.00")
+        },
+        {
+            "name": "Google Pixel 8 Pro",
+            "serial_number": "PIX8P001",
+            "category_name": "Phones",
+            "employee_email": None,
+            "status": "available",
+            "purchase_date": date(2026, 6, 5),
+            "cost": Decimal("999.00")
+        },
+        {
+            "name": "Conference Room Table",
+            "serial_number": "CONFTR01",
+            "category_name": "Furniture",
+            "employee_email": None,
+            "status": "reserved",
+            "purchase_date": date(2026, 6, 10),
+            "cost": Decimal("850.00")
+        },
+        {
+            "name": "Steelcase Gesture Chair",
+            "serial_number": "STLCSE01",
+            "category_name": "Furniture",
+            "employee_email": None,
+            "status": "available",
+            "purchase_date": date(2026, 6, 12),
+            "cost": Decimal("1100.00")
+        },
+        {
+            "name": "Sony WH-1000XM5",
+            "serial_number": "SONYXM51",
+            "category_name": "Phones",
+            "employee_email": None,
+            "status": "available",
+            "purchase_date": date(2026, 6, 15),
+            "cost": Decimal("399.00")
+        },
+        {
+            "name": "Apple Studio Display",
+            "serial_number": "APLSTD01",
+            "category_name": "Monitors",
+            "employee_email": None,
+            "status": "available",
+            "purchase_date": date(2026, 6, 18),
+            "cost": Decimal("1599.00")
+        },
+        {
+            "name": "Broken Projector",
+            "serial_number": "PROJ001",
+            "category_name": "Monitors",
+            "employee_email": None,
+            "status": "retired",
+            "purchase_date": date(2026, 6, 20),
+            "cost": Decimal("600.00")
         }
     ]
 
