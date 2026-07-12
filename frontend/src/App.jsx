@@ -1,122 +1,253 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React from 'react';
+import {
+  Search, Bell, Settings, Plus, Calendar, FileText,
+  LayoutDashboard, Users, Box, Network, CalendarCheck,
+  Wrench, ClipboardCheck, BarChart2, AlertTriangle,
+  Laptop, Building2, Car, TrendingUp, MonitorPlay
+} from 'lucide-react';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="dashboard-container">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <div className="logo">
+            <TrendingUp className="logo-icon" />
+            <div className="logo-text">
+              <h2>AssetFlow</h2>
+              <span>Enterprise Management</span>
+            </div>
+          </div>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        
+        <ul className="nav-links">
+          <li className="nav-item active">
+            <LayoutDashboard className="nav-icon" />
+            Dashboard
+          </li>
+          <li className="nav-item">
+            <Users className="nav-icon" />
+            Organization
+          </li>
+          <li className="nav-item">
+            <Box className="nav-icon" />
+            Assets
+          </li>
+          <li className="nav-item">
+            <Network className="nav-icon" />
+            Allocation
+          </li>
+          <li className="nav-item">
+            <CalendarCheck className="nav-icon" />
+            Booking
+          </li>
+          <li className="nav-item">
+            <Wrench className="nav-icon" />
+            Maintenance
+          </li>
+          <li className="nav-item">
+            <ClipboardCheck className="nav-icon" />
+            Audit
+          </li>
+          <li className="nav-item">
+            <BarChart2 className="nav-icon" />
+            Reports
+          </li>
+          <li className="nav-item">
+            <Bell className="nav-icon" />
+            Notifications
+          </li>
+        </ul>
+      </aside>
 
-      <div className="ticks"></div>
+      {/* Main Content */}
+      <main className="main-content">
+        {/* Header */}
+        <header className="top-header">
+          <div className="search-bar">
+            <Search size={18} color="#8b92a5" />
+            <input type="text" placeholder="Search assets..." />
+          </div>
+          <div className="header-actions">
+            <button className="icon-button">
+              <Bell size={20} />
+            </button>
+            <button className="icon-button">
+              <Settings size={20} />
+            </button>
+            <img src="https://i.pravatar.cc/150?img=11" alt="User" className="avatar" />
+          </div>
+        </header>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        {/* Alert Banner */}
+        <div className="alert-banner">
+          <AlertTriangle size={18} />
+          12 items flagged for follow-up.
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        <div className="content-wrapper">
+          {/* Dashboard Header */}
+          <div className="dashboard-header">
+            <div className="dashboard-title">
+              <h1>Dashboard Overview</h1>
+              <p>Welcome back, here's your asset summary for today.</p>
+            </div>
+            <div className="dashboard-actions">
+              <button className="btn btn-primary">
+                <Plus size={16} /> Register Asset
+              </button>
+              <button className="btn">
+                <Calendar size={16} /> Book Resource
+              </button>
+              <button className="btn">
+                <FileText size={16} /> Raise Request
+              </button>
+            </div>
+          </div>
+
+          {/* Metric Cards */}
+          <div className="metric-cards">
+            <div className="metric-card">
+              <div className="metric-icon">
+                <ClipboardCheck size={20} />
+              </div>
+              <h3>Assets Available</h3>
+              <div className="value">1,248</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-icon">
+                <Network size={20} />
+              </div>
+              <h3>Allocated</h3>
+              <div className="value">3,492</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-icon">
+                <Calendar size={20} />
+              </div>
+              <h3>Active Bookings</h3>
+              <div className="value">87</div>
+            </div>
+            <div className="metric-card">
+              <div className="metric-icon">
+                <Car size={20} />
+              </div>
+              <h3>Pending Transfers</h3>
+              <div className="value">24</div>
+            </div>
+            <div className="metric-card danger">
+              <div className="metric-icon">
+                <TrendingUp size={20} />
+              </div>
+              <h3>Upcoming Returns</h3>
+              <div className="value">56</div>
+            </div>
+          </div>
+
+          <div className="dashboard-grid">
+            {/* Recent Activity */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">Recent Activity</h2>
+                <a href="#" className="view-all">View All</a>
+              </div>
+              <div className="activity-list">
+                <div className="activity-item">
+                  <div className="activity-icon">
+                    <Laptop size={20} />
+                  </div>
+                  <div className="activity-details">
+                    <p>MacBook Pro #102 Allocated to Jane Doe</p>
+                    <span>10 minutes ago</span>
+                  </div>
+                  <div className="tag">IT Dept</div>
+                </div>
+                
+                <div className="activity-item">
+                  <div className="activity-icon teal">
+                    <Building2 size={20} />
+                  </div>
+                  <div className="activity-details">
+                    <p>Conf Room B2 Booked by Marketing</p>
+                    <span>45 minutes ago</span>
+                  </div>
+                  <div className="tag">Facilities</div>
+                </div>
+                
+                <div className="activity-item">
+                  <div className="activity-icon red">
+                    <Wrench size={20} />
+                  </div>
+                  <div className="activity-details">
+                    <p>Maintenance requested for HVAC Unit A</p>
+                    <span>2 hours ago</span>
+                  </div>
+                  <div className="tag">Maintenance</div>
+                </div>
+                
+                <div className="activity-item">
+                  <div className="activity-icon">
+                    <Car size={20} />
+                  </div>
+                  <div className="activity-details">
+                    <p>Fleet Vehicle 04 returned by John Smith</p>
+                    <span>Yesterday, 4:30 PM</span>
+                  </div>
+                  <div className="tag">Logistics</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Asset Status */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">Asset Status</h2>
+              </div>
+              <div className="chart-container">
+                <div className="donut-chart">
+                  <svg viewBox="0 0 100 100" width="160" height="160">
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#eaedf2" strokeWidth="12" />
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#0ea5e9" strokeWidth="12" strokeDasharray="60 251.2" strokeDashoffset="-163.28" />
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#3b28cc" strokeWidth="12" strokeDasharray="163.28 251.2" strokeDashoffset="0" />
+                  </svg>
+                  <div className="donut-center">
+                    <h2>82%</h2>
+                    <span>Healthy</span>
+                  </div>
+                </div>
+                
+                <div className="legend">
+                  <div className="legend-item">
+                    <div className="legend-label">
+                      <div className="dot in-use"></div>
+                      <span>In Use</span>
+                    </div>
+                    <span className="legend-value">65%</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-label">
+                      <div className="dot available"></div>
+                      <span>Available</span>
+                    </div>
+                    <span className="legend-value">25%</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-label">
+                      <div className="dot maintenance"></div>
+                      <span>Maintenance</span>
+                    </div>
+                    <span className="legend-value">10%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
