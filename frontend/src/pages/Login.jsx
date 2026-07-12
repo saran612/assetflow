@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Archive, Mail, Lock, User, ArrowRight, CheckSquare } from 'lucide-react';
+import { Archive, Mail, Lock, User, ArrowRight, CheckSquare, Info } from 'lucide-react';
 
 export default function Login() {
   const [mounted, setMounted] = useState(false);
@@ -117,6 +117,13 @@ export default function Login() {
               <label htmlFor="terms" className="text-[0.8rem] text-slate-600 cursor-pointer select-none">
                 I agree to the <a href="#" className="text-[#2b1fcc] font-medium hover:underline transition-colors">Terms & Conditions</a>
               </label>
+            </div>
+
+            <div className="mt-4 bg-indigo-50 border border-indigo-100 rounded-lg p-3 flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-[#2b1fcc] flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-slate-600 leading-relaxed">
+                <span className="font-semibold text-slate-800">Note:</span> Sign up creates an <span className="font-semibold">Employee</span> account. Admin roles can be assigned later.
+              </p>
             </div>
 
             <button 
