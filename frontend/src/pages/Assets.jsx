@@ -24,12 +24,43 @@ export default function Assets() {
   const [formData, setFormData] = useState({ name: '', tag: '', category: 'Electronics', status: 'Available', location: '' });
   
   // Filter State
-  const [activeFilters, setActiveFilters] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [departmentFilter, setDepartmentFilter] = useState('All');
+  
+  // Pagination & Display State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [density, setDensity] = useState('normal');
 
-  const toggleFilter = (filter) => {
-    setActiveFilters(prev => 
-      prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]
-    );
+  // Compute Filtered and Paginated Data
+  const filteredAssets = assets.filter(a => {
+    const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.tag.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === 'All' || a.category === categoryFilter;
+    const matchesStatus = statusFilter === 'All' || a.status === statusFilter;
+    const matchesDept = departmentFilter === 'All' || a.location === departmentFilter;
+    return matchesSearch && matchesCategory && matchesStatus && matchesDept;
+  });
+
+  const itemsPerPage = 5;
+  const totalPages = Math.max(1, Math.ceil(filteredAssets.length / itemsPerPage));
+  const paginatedAssets = filteredAssets.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleExportCSV = () => {
+    const headers = ['Tag', 'Name', 'Category', 'Status', 'Location', 'Last Seen'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredAssets.map(a => `${a.tag},${a.name},${a.category},${a.status},${a.location},${a.lastSeen}`)
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'assets_export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Exported CSV successfully', 'success');
   };
 
   const handleRegister = (e) => {
@@ -47,6 +78,11 @@ export default function Assets() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, categoryFilter, statusFilter, departmentFilter]);
 
   const getStatusStyle = (status) => {
     switch(status) {
@@ -93,19 +129,33 @@ export default function Assets() {
           />
         </div>
         <div className="flex items-center gap-3">
-          {['Category', 'Status', 'Department'].map((filter) => (
-            <button 
-              key={filter}
-              onClick={() => toggleFilter(filter)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors border
-                ${activeFilters.includes(filter) 
-                  ? 'bg-indigo-50 border-indigo-200 text-[#2b1fcc]' 
-                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                }`}
-            >
-              {filter} <ChevronDown className={`w-4 h-4 ${activeFilters.includes(filter) ? 'text-[#2b1fcc]' : 'text-slate-400'}`} />
-            </button>
-          ))}
+          <select 
+            value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
+            className="px-4 py-2.5 rounded-full text-sm font-semibold bg-slate-50 border border-slate-200 text-slate-600 outline-none hover:bg-slate-100 focus:ring-2 focus:ring-[#2b1fcc]/20 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.41%200L6%204.58L10.59%200L12%201.41L6%207.41L0%201.41L1.41%200Z%22%20fill%3D%22%2394a3b8%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_8px] bg-[position:calc(100%-12px)_center] bg-no-repeat pr-8"
+          >
+            <option value="All">Category</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Vehicles">Vehicles</option>
+          </select>
+          <select 
+            value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+            className="px-4 py-2.5 rounded-full text-sm font-semibold bg-slate-50 border border-slate-200 text-slate-600 outline-none hover:bg-slate-100 focus:ring-2 focus:ring-[#2b1fcc]/20 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.41%200L6%204.58L10.59%200L12%201.41L6%207.41L0%201.41L1.41%200Z%22%20fill%3D%22%2394a3b8%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_8px] bg-[position:calc(100%-12px)_center] bg-no-repeat pr-8"
+          >
+            <option value="All">Status</option>
+            <option value="Available">Available</option>
+            <option value="Allocated">Allocated</option>
+            <option value="Maintenance">Maintenance</option>
+          </select>
+          <select 
+            value={departmentFilter} onChange={e => setDepartmentFilter(e.target.value)}
+            className="px-4 py-2.5 rounded-full text-sm font-semibold bg-slate-50 border border-slate-200 text-slate-600 outline-none hover:bg-slate-100 focus:ring-2 focus:ring-[#2b1fcc]/20 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.41%200L6%204.58L10.59%200L12%201.41L6%207.41L0%201.41L1.41%200Z%22%20fill%3D%22%2394a3b8%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_8px] bg-[position:calc(100%-12px)_center] bg-no-repeat pr-8"
+          >
+            <option value="All">Department</option>
+            <option value="Engineering HQ">Engineering HQ</option>
+            <option value="Facilities">Facilities</option>
+            <option value="Field Ops">Field Ops</option>
+          </select>
         </div>
       </div>
 
@@ -136,14 +186,23 @@ export default function Assets() {
         <div className="p-6 flex items-center justify-between border-b border-slate-100">
           <h3 className="text-[1.1rem] font-bold text-slate-800">Assets List</h3>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm">
+            <button 
+              onClick={handleExportCSV}
+              className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
+            >
               <Download className="w-3.5 h-3.5" /> Export CSV
             </button>
-            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm">
+            <button 
+              onClick={() => window.print()}
+              className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
+            >
               <Printer className="w-3.5 h-3.5" /> Print
             </button>
-            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm">
-              <SlidersHorizontal className="w-3.5 h-3.5" /> Density
+            <button 
+              onClick={() => setDensity(d => d === 'normal' ? 'compact' : 'normal')}
+              className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" /> {density === 'normal' ? 'Compact' : 'Normal'}
             </button>
           </div>
         </div>
@@ -162,12 +221,16 @@ export default function Assets() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100/80">
-              {assets.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.tag.toLowerCase().includes(searchQuery.toLowerCase())).map((asset) => (
+              {paginatedAssets.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-slate-500 font-medium">No assets found matching your criteria.</td>
+                </tr>
+              ) : paginatedAssets.map((asset) => (
                 <tr key={asset.id} className="hover:bg-slate-50/50 transition-colors duration-150 group cursor-pointer">
-                  <td className="py-6 px-6">
+                  <td className={`px-6 ${density === 'compact' ? 'py-3' : 'py-6'}`}>
                     <span className="font-bold text-slate-700 text-[0.8rem]">{asset.tag}</span>
                   </td>
-                  <td className="py-6 px-6">
+                  <td className={`px-6 ${density === 'compact' ? 'py-3' : 'py-6'}`}>
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 ${asset.iconBg}`}>
                         <asset.icon className="w-5 h-5" />
@@ -175,19 +238,19 @@ export default function Assets() {
                       <span className="font-bold text-slate-700 text-[0.9rem]">{asset.name}</span>
                     </div>
                   </td>
-                  <td className="py-6 px-6 text-[0.85rem] font-medium text-slate-500">{asset.category}</td>
-                  <td className="py-6 px-6">
+                  <td className={`px-6 text-[0.85rem] font-medium text-slate-500 ${density === 'compact' ? 'py-3' : 'py-6'}`}>{asset.category}</td>
+                  <td className={`px-6 ${density === 'compact' ? 'py-3' : 'py-6'}`}>
                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-[0.7rem] font-extrabold tracking-wide ${getStatusStyle(asset.status)}`}>
                       {asset.status}
                     </span>
                   </td>
-                  <td className="py-6 px-6">
+                  <td className={`px-6 ${density === 'compact' ? 'py-3' : 'py-6'}`}>
                     <div className="flex items-center gap-1.5 text-slate-500 text-[0.85rem] font-medium">
                       <MapPin className="w-4 h-4 text-slate-400" />
                       <span className="capitalize">{asset.location}</span>
                     </div>
                   </td>
-                  <td className="py-6 px-6 text-[0.85rem] font-medium text-slate-500">
+                  <td className={`px-6 text-[0.85rem] font-medium text-slate-500 ${density === 'compact' ? 'py-3' : 'py-6'}`}>
                     {asset.lastSeen}
                   </td>
                 </tr>
@@ -198,19 +261,36 @@ export default function Assets() {
 
         {/* Pagination Footer */}
         <div className="p-5 border-t border-slate-100 flex items-center justify-between bg-white">
-          <p className="text-[0.75rem] font-bold text-slate-400 tracking-wide">Showing 1 to 3 of 45 entries</p>
+          <p className="text-[0.75rem] font-bold text-slate-400 tracking-wide">
+            Showing {filteredAssets.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredAssets.length)} of {filteredAssets.length} entries
+          </p>
           
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1 px-3 py-1.5 text-[0.75rem] font-bold text-slate-300 transition-colors disabled:opacity-50" disabled>
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1 px-3 py-1.5 text-[0.75rem] font-bold text-slate-500 hover:text-slate-900 transition-colors disabled:opacity-30"
+            >
               Prev
             </button>
-            <button className="w-7 h-7 flex items-center justify-center rounded bg-[#2b1fcc] text-white text-[0.75rem] font-bold shadow-sm">
-              1
-            </button>
-            <button className="w-7 h-7 flex items-center justify-center rounded bg-white border border-slate-200 text-slate-500 text-[0.75rem] font-bold hover:bg-slate-50 hover:border-slate-300 transition-all">
-              2
-            </button>
-            <button className="flex items-center gap-1 px-3 py-1.5 text-[0.75rem] font-bold text-slate-500 hover:text-slate-900 transition-colors">
+            {[...Array(totalPages)].map((_, i) => (
+              <button 
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-7 h-7 flex items-center justify-center rounded text-[0.75rem] font-bold transition-all shadow-sm
+                  ${currentPage === i + 1 
+                    ? 'bg-[#2b1fcc] text-white' 
+                    : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300'
+                  }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="flex items-center gap-1 px-3 py-1.5 text-[0.75rem] font-bold text-slate-500 hover:text-slate-900 transition-colors disabled:opacity-30"
+            >
               Next
             </button>
           </div>
