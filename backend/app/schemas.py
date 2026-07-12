@@ -183,3 +183,65 @@ class AssetMaintenanceResponse(BaseModel):
 
 class TechnicianAssignmentRequest(BaseModel):
     technician_name: str
+
+
+# Audit Schemas
+class AuditCycleCreate(BaseModel):
+    name: str
+    start_date: date
+    end_date: date
+
+class AuditCycleResponse(BaseModel):
+    id: int
+    name: str
+    start_date: date
+    end_date: date
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class AuditItemVerification(BaseModel):
+    status: str  # 'verified', 'missing'
+    notes: Optional[str] = None
+
+class AuditItemResponse(BaseModel):
+    id: int
+    audit_cycle_id: int
+    asset_id: int
+    status: str
+    verified_at: Optional[datetime] = None
+    verified_by_id: Optional[int] = None
+    notes: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class AuditCycleDetailResponse(AuditCycleResponse):
+    items: List[AuditItemResponse] = []
+
+    class Config:
+        from_attributes = True
+
+
+# Dashboard KPIs
+class DashboardKPIsResponse(BaseModel):
+    total_assets: int
+    allocated_assets: int
+    maintenance_assets: int
+    available_assets: int
+    lost_assets: int
+    overdue_bookings_count: int
+    total_cost: Decimal
+
+
+# Reports
+class AuditDiscrepancyReport(BaseModel):
+    cycle_id: int
+    cycle_name: str
+    total_items: int
+    verified_items: int
+    missing_items: int
+    pending_items: int
+    missing_assets: List[AssetResponse] = []

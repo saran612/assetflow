@@ -47,7 +47,7 @@ class Asset(Base):
     serial_number = Column(String, unique=True, index=True, nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
-    status = Column(String, default="available", nullable=False)  # 'available', 'assigned', 'maintenance', 'retired'
+    status = Column(String, default="available", nullable=False)  # 'available', 'assigned', 'maintenance', 'retired', 'lost'
     purchase_date = Column(Date, nullable=True)
     cost = Column(Numeric(10, 2), nullable=True)
     image_url = Column(String, nullable=True)
@@ -66,7 +66,7 @@ class AssetHistory(Base):
     id = Column(Integer, primary_key=True, index=True)
     asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
-    action = Column(String, nullable=False)  # 'registered', 'allocated', 'transferred', 'returned', 'status_changed'
+    action = Column(String, nullable=False)  # 'registered', 'allocated', 'transferred', 'returned', 'status_changed', 'booked'
     details = Column(String, nullable=True)
     timestamp = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     performed_by_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
@@ -121,3 +121,32 @@ class AssetMaintenance(Base):
 
     asset = relationship("Asset", back_populates="maintenances")
     requester = relationship("Employee")
+
+
+class AuditCycle(Base):
+    __tablename__ = "audit_cycles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    status = Column(String, default="active", nullable=False)  # 'active', 'closed'
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    items = relationship("AuditItem", back_populates="cycle", cascade="all, delete-orphan")
+
+
+class AuditItem(Base):
+    __tablename__ = "audit_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    audit_cycle_id = Column(Integer, ForeignKey("audit_cycles.id"), nullable=False)
+    asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
+    status = Column(String, default="pending", nullable=False)  # 'pending', 'verified', 'missing'
+    verified_at = Column(DateTime(timezone=True), nullable=True)
+    verified_by_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
+    notes = Column(String, nullable=True)
+
+    cycle = relationship("AuditCycle", back_populates="items")
+    asset = relationship("Asset")
+    verified_by = relationship("Employee")
