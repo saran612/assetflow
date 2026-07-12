@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Search, Plus, ChevronDown, MapPin, 
   Laptop, Projector, Sofa, ChevronLeft, ChevronRight,
@@ -11,6 +11,7 @@ import {
 import Modal from '../components/Modal';
 import { useAppContext } from '../contexts/AppContext';
 import { useToast } from '../contexts/ToastContext';
+import { useDebounce } from '../utils/hooks';
 
 export default function Assets() {
   const [mounted, setMounted] = useState(false);
@@ -32,9 +33,13 @@ export default function Assets() {
   const [currentPage, setCurrentPage] = useState(1);
   const [density, setDensity] = useState('normal');
 
+  // Debounced search — input state updates immediately for the user,
+  // but the filtered list only recomputes after 300ms of inactivity.
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
   // Compute Filtered and Paginated Data
   const filteredAssets = assets.filter(a => {
-    const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.tag.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = a.name.toLowerCase().includes(debouncedSearch.toLowerCase()) || a.tag.toLowerCase().includes(debouncedSearch.toLowerCase());
     const matchesCategory = categoryFilter === 'All' || a.category === categoryFilter;
     const matchesStatus = statusFilter === 'All' || a.status === statusFilter;
     const matchesDept = departmentFilter === 'All' || a.location === departmentFilter;
@@ -82,7 +87,7 @@ export default function Assets() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, categoryFilter, statusFilter, departmentFilter]);
+  }, [debouncedSearch, categoryFilter, statusFilter, departmentFilter]);
 
   const getStatusStyle = (status) => {
     switch(status) {
