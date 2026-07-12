@@ -53,3 +53,14 @@ def get_current_employee(token: str = Depends(oauth2_scheme), db: Session = Depe
     if employee is None:
         raise credentials_exception
     return employee
+
+def require_role(allowed_roles: list[str]):
+    def dependency(current_employee: Employee = Depends(get_current_employee)):
+        if current_employee.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not enough permissions"
+            )
+        return current_employee
+    return dependency
+

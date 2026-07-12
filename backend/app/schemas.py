@@ -65,6 +65,17 @@ class EmployeeResponse(EmployeeBase):
     class Config:
         from_attributes = True
 
+class EmployeeSignup(BaseModel):
+    email: EmailStr
+    password: str
+    first_name: str
+    last_name: str
+    department_id: Optional[int] = None
+
+class RolePromotionRequest(BaseModel):
+    role: str
+
+
 
 # Asset Schemas
 class AssetBase(BaseModel):

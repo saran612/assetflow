@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.database import engine, Base, SessionLocal
 from app.seed import seed_db
-from app.routers import auth
+from app.routers import auth, org
 from app.auth import get_current_employee
 from app.models import Employee
 from app.schemas import EmployeeResponse
@@ -40,6 +40,7 @@ app.add_middleware(
 
 # Include Routers
 app.include_router(auth.router)
+app.include_router(org.router)
 
 @app.get("/")
 def read_root():
