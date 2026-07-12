@@ -71,11 +71,15 @@ export default function DashboardLayout() {
           })}
         </nav>
 
-        {/* Add Asset Button (Bottom) */}
+        {/* User Profile */}
         <div className="p-4 border-t border-slate-100">
-          <button className="w-full bg-[#2b1fcc] text-white py-3 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-[#2015a3] hover:shadow-lg transition-all flex items-center justify-center gap-2">
-            <Plus className="w-4 h-4 stroke-[3]" /> Add New Asset
-          </button>
+          <div className="flex items-center gap-3 px-3 py-2.5 bg-slate-100/60 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+            <img src="https://i.pravatar.cc/150?img=11" alt="Admin" className="w-10 h-10 rounded-xl object-cover shadow-sm border border-slate-200" />
+            <div className="flex-1 min-w-0">
+              <h4 className="text-[0.8rem] font-bold text-slate-900 truncate">Administrator</h4>
+              <p className="text-[0.65rem] font-semibold text-slate-500 truncate">admin@assetflow.com</p>
+            </div>
+          </div>
         </div>
       </aside>
 
@@ -95,9 +99,8 @@ export default function DashboardLayout() {
             <button className="hover:text-slate-700 transition-colors"><HelpCircle className="w-5 h-5" /></button>
             <button className="hover:text-slate-700 transition-colors"><Settings className="w-5 h-5" /></button>
             <div className="w-px h-6 bg-slate-200 mx-2"></div>
-            <button className="flex items-center gap-2 hover:bg-slate-50 p-1 pr-3 rounded-full transition-colors border border-transparent hover:border-slate-200">
-              <img src="https://i.pravatar.cc/150?img=11" alt="Alex Mercer" className="w-8 h-8 rounded-full object-cover shadow-sm" />
-              <span className="text-sm font-semibold text-slate-700">Alex M.</span>
+            <button className="bg-[#2b1fcc] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-[#2015a3] hover:shadow-lg transition-all active:scale-95 flex items-center gap-2">
+              <Plus className="w-4 h-4 stroke-[3]" /> Add New Asset
             </button>
           </div>
         </header>

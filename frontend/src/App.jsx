@@ -10,6 +10,7 @@ import Allocation from './pages/Allocation';
 import Reports from './pages/Reports';
 import Maintenance from './pages/Maintenance';
 import Audit from './pages/Audit';
+import Notifications from './pages/Notifications';
 import './App.css';
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/maintenance" element={<Maintenance />} />
           <Route path="/audit" element={<Audit />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/notifications" element={<Notifications />} />
           
           {/* Catch-all for other sidebar links currently not implemented */}
           <Route path="*" element={
