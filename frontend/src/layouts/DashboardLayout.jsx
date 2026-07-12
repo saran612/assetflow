@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Box, ArrowRightLeft,
   CalendarCheck, Wrench, ClipboardCheck, BarChart2,
-  Bell, Settings, Archive
+  Bell, Settings, Archive, Search
 } from 'lucide-react';
 
 export default function DashboardLayout() {
@@ -16,10 +16,10 @@ export default function DashboardLayout() {
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Organization setup', path: '/organization-setup', icon: Building2 },
+    { name: 'Organization', path: '/organization-setup', icon: Building2 },
     { name: 'Assets', path: '/assets', icon: Box },
-    { name: 'Allocation & Transfer', path: '/allocation', icon: ArrowRightLeft },
-    { name: 'Resource Booking', path: '/booking', icon: CalendarCheck },
+    { name: 'Allocation', path: '/allocation', icon: ArrowRightLeft },
+    { name: 'Booking', path: '/booking', icon: CalendarCheck },
     { name: 'Maintenance', path: '/maintenance', icon: Wrench },
     { name: 'Audit', path: '/audit', icon: ClipboardCheck },
     { name: 'Reports', path: '/reports', icon: BarChart2 },
@@ -74,10 +74,10 @@ export default function DashboardLayout() {
         {/* User Profile */}
         <div className="p-4 border-t border-slate-100">
           <div className="flex items-center gap-3 px-2 py-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
-            <img src="https://i.pravatar.cc/150?img=11" alt="Alex Sterling" className="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm" />
+            <img src="https://i.pravatar.cc/150?img=11" alt="Alex Mercer" className="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm" />
             <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-semibold text-slate-900 truncate">Alex Sterling</h4>
-              <p className="text-[0.7rem] text-slate-500 truncate">Operations Dir.</p>
+              <h4 className="text-sm font-semibold text-slate-900 truncate">Alex Mercer</h4>
+              <p className="text-[0.7rem] text-slate-500 truncate">Operations Lead</p>
             </div>
             <Settings className="w-4 h-4 text-slate-400" />
           </div>
@@ -85,7 +85,23 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 relative overflow-y-auto bg-dot-pattern">
+      <main 
+        className="flex-1 relative overflow-y-auto bg-slate-50/50" 
+        style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+      >
+        
+        {/* Top Global Header Bar */}
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+          <div className="relative w-96">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input type="text" placeholder="Search resources, bookings, or assets..." className="w-full bg-slate-100/50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-[0.85rem] outline-none hover:bg-white focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-[#2b1fcc] transition-all shadow-sm" />
+          </div>
+          <div className="flex items-center gap-5 text-slate-400">
+            <button className="hover:text-[#2b1fcc] transition-colors"><Bell className="w-5 h-5" /></button>
+            <button className="hover:text-[#2b1fcc] transition-colors"><Settings className="w-5 h-5" /></button>
+          </div>
+        </header>
+
         <div 
           className="max-w-[1200px] mx-auto p-8 relative z-10"
           style={{
