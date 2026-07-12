@@ -3,13 +3,34 @@ import {
   AlertCircle, Laptop, User, Send, Activity, 
   Info, ChevronDown 
 } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
 
 export default function Allocation() {
   const [mounted, setMounted] = useState(false);
+  const { showToast } = useToast();
+  
+  // Form State
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ to: '', reason: '' });
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.to) {
+      showToast('Please select a recipient employee', 'error');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setFormData({ to: '', reason: '' });
+      showToast('Transfer request submitted successfully', 'success');
+    }, 800);
+  };
 
   return (
     <div 
@@ -58,7 +79,7 @@ export default function Allocation() {
           </div>
 
           {/* Transfer Request */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
+          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/30 rounded-full blur-3xl -z-10 pointer-events-none"></div>
             
             <h3 className="text-[1.1rem] font-extrabold text-slate-800 mb-6">Transfer Request</h3>
@@ -74,9 +95,12 @@ export default function Allocation() {
               <div>
                 <label className="block text-xs font-bold text-slate-500 mb-2">To</label>
                 <div className="relative cursor-pointer group">
-                  <select className="w-full appearance-none bg-white border border-slate-200 rounded-lg pl-3 pr-10 py-2.5 text-sm text-slate-700 font-medium outline-none hover:border-slate-300 focus:border-[#2b1fcc] focus:ring-2 focus:ring-indigo-500/10 transition-all cursor-pointer">
-                    <option value="" disabled selected hidden>Select Employee...</option>
-                    <option>Alex Mercer</option>
+                  <select 
+                    value={formData.to} onChange={e => setFormData({...formData, to: e.target.value})}
+                    className="w-full appearance-none bg-white border border-slate-200 rounded-lg pl-3 pr-10 py-2.5 text-sm text-slate-700 font-medium outline-none hover:border-slate-300 focus:border-[#2b1fcc] focus:ring-2 focus:ring-indigo-500/10 transition-all cursor-pointer"
+                  >
+                    <option value="" disabled hidden>Select Employee...</option>
+                    <option value="Alex Mercer">Alex Mercer</option>
                   </select>
                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none group-hover:text-slate-700" />
                 </div>
@@ -87,17 +111,22 @@ export default function Allocation() {
               <label className="block text-xs font-bold text-slate-500 mb-2">Reason</label>
               <textarea 
                 rows="4" 
+                value={formData.reason} onChange={e => setFormData({...formData, reason: e.target.value})}
                 placeholder="Provide reason for transfer..."
                 className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-600 font-medium outline-none hover:border-slate-300 focus:border-[#2b1fcc] focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none placeholder:text-slate-400/80"
               ></textarea>
             </div>
 
             <div className="flex justify-end">
-              <button className="bg-[#3a2cdb] text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-[#2015a3] hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 flex items-center gap-2">
-                <Send className="w-3.5 h-3.5" /> Submit Request
+              <button 
+                type="submit"
+                disabled={isSubmitting}
+                className={`bg-[#3a2cdb] text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-[#2015a3] hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 flex items-center gap-2 ${isSubmitting ? 'opacity-80' : ''}`}
+              >
+                {isSubmitting ? 'Processing...' : <><Send className="w-3.5 h-3.5" /> Submit Request</>}
               </button>
             </div>
-          </div>
+          </form>
         </div>
 
         {/* Right Column */}

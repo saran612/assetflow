@@ -4,12 +4,32 @@ import {
   AlertTriangle, Building2, ArrowRight 
 } from 'lucide-react';
 
+import Modal from '../components/Modal';
+import { useToast } from '../contexts/ToastContext';
+
 export default function Booking() {
   const [mounted, setMounted] = useState(false);
+  const { showToast } = useToast();
+  
+  // Modal & Form State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ date: '2026-07-07', startTime: '10:30', endTime: '11:30', title: '' });
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleBookingSubmit = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsModalOpen(false);
+      setFormData({ date: '2026-07-07', startTime: '10:30', endTime: '11:30', title: '' });
+      showToast('Slot booked successfully!', 'success');
+    }, 800);
+  };
 
   return (
     <div 
@@ -121,7 +141,10 @@ export default function Booking() {
 
             {/* Action Footer */}
             <div className="p-5 border-t border-slate-50 flex justify-end">
-              <button className="bg-[#2b1fcc] text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95">
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="bg-[#2b1fcc] text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95"
+              >
                 + Book a slot
               </button>
             </div>
@@ -165,6 +188,52 @@ export default function Booking() {
 
       </div>
       
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Book Resource Slot">
+        <form onSubmit={handleBookingSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Meeting Title</label>
+            <input 
+              type="text" required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
+              placeholder="e.g. Q3 Planning"
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Date</label>
+            <input 
+              type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Start Time</label>
+              <input 
+                type="time" required value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">End Time</label>
+              <input 
+                type="time" required value={formData.endTime} onChange={e => setFormData({...formData, endTime: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex gap-3 justify-end">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className={`px-6 py-2 text-sm font-bold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-all shadow-sm ${isSubmitting ? 'opacity-80' : ''}`}
+            >
+              {isSubmitting ? 'Processing...' : 'Confirm Booking'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
       <style>{`
         @keyframes pulse-conflict {
           0%, 100% {

@@ -6,45 +6,43 @@ import {
   Download, Printer, SlidersHorizontal
 } from 'lucide-react';
 
-const initialAssets = [
-  { 
-    id: 1, 
-    tag: 'AF-0012', 
-    name: 'Dell Laptop', 
-    category: 'Electronics', 
-    status: 'Allocated', 
-    location: 'bengaluru', 
-    lastSeen: '2 hours ago',
-    icon: Laptop, 
-    iconBg: 'bg-indigo-100 text-[#2b1fcc]' 
-  },
-  { 
-    id: 2, 
-    tag: 'AF-0062', 
-    name: 'Projector', 
-    category: 'Electronics', 
-    status: 'Maintenance', 
-    location: 'HQ floor 2', 
-    lastSeen: 'Yesterday',
-    icon: Projector, 
-    iconBg: 'bg-indigo-100 text-[#2b1fcc]' 
-  },
-  { 
-    id: 3, 
-    tag: 'AF-0201', 
-    name: 'Office chair', 
-    category: 'Furniture', 
-    status: 'Available', 
-    location: 'Warehouse', 
-    lastSeen: '3 days ago',
-    icon: Sofa, 
-    iconBg: 'bg-slate-200 text-slate-500' 
-  }
-];
+// initialAssets moved to AppContext
+
+import Modal from '../components/Modal';
+import { useAppContext } from '../contexts/AppContext';
+import { useToast } from '../contexts/ToastContext';
 
 export default function Assets() {
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { assets, addAsset } = useAppContext();
+  const { showToast } = useToast();
+  
+  // Modal & Form State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ name: '', tag: '', category: 'Electronics', status: 'Available', location: '' });
+  
+  // Filter State
+  const [activeFilters, setActiveFilters] = useState([]);
+
+  const toggleFilter = (filter) => {
+    setActiveFilters(prev => 
+      prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]
+    );
+  };
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      addAsset(formData);
+      setIsSubmitting(false);
+      setIsModalOpen(false);
+      setFormData({ name: '', tag: '', category: 'Electronics', status: 'Available', location: '' });
+      showToast('Asset registered successfully!', 'success');
+    }, 800);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -74,7 +72,10 @@ export default function Assets() {
           <h2 className="text-[2rem] font-extrabold text-slate-800 tracking-tight leading-tight">Asset Directory</h2>
           <p className="text-[0.95rem] text-slate-500 mt-1 font-medium">Manage and track all registered assets across the organization.</p>
         </div>
-        <button className="bg-[#2b1fcc] text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 hover:bg-[#2015a3] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 active:scale-95 flex items-center gap-2 tracking-wide">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-[#2b1fcc] text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 hover:bg-[#2015a3] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 active:scale-95 flex items-center gap-2 tracking-wide"
+        >
           <Plus className="w-4 h-4 stroke-[3]" /> Register Asset
         </button>
       </div>
@@ -95,9 +96,14 @@ export default function Assets() {
           {['Category', 'Status', 'Department'].map((filter) => (
             <button 
               key={filter}
-              className="flex items-center gap-2 bg-slate-50 border border-slate-200 text-slate-600 px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-slate-100 transition-colors"
+              onClick={() => toggleFilter(filter)}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors border
+                ${activeFilters.includes(filter) 
+                  ? 'bg-indigo-50 border-indigo-200 text-[#2b1fcc]' 
+                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                }`}
             >
-              {filter} <ChevronDown className="w-4 h-4 text-slate-400" />
+              {filter} <ChevronDown className={`w-4 h-4 ${activeFilters.includes(filter) ? 'text-[#2b1fcc]' : 'text-slate-400'}`} />
             </button>
           ))}
         </div>
@@ -156,7 +162,7 @@ export default function Assets() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100/80">
-              {initialAssets.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.tag.toLowerCase().includes(searchQuery.toLowerCase())).map((asset) => (
+              {assets.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.tag.toLowerCase().includes(searchQuery.toLowerCase())).map((asset) => (
                 <tr key={asset.id} className="hover:bg-slate-50/50 transition-colors duration-150 group cursor-pointer">
                   <td className="py-6 px-6">
                     <span className="font-bold text-slate-700 text-[0.8rem]">{asset.tag}</span>
@@ -211,6 +217,68 @@ export default function Assets() {
         </div>
 
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Register New Asset">
+        <form onSubmit={handleRegister} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Asset Name</label>
+            <input 
+              type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Asset Tag</label>
+              <input 
+                type="text" required value={formData.tag} onChange={e => setFormData({...formData, tag: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Category</label>
+              <select 
+                value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              >
+                <option value="Electronics">Electronics</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Vehicles">Vehicles</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Location</label>
+              <input 
+                type="text" required value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status</label>
+              <select 
+                value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              >
+                <option value="Available">Available</option>
+                <option value="Allocated">Allocated</option>
+                <option value="Maintenance">Maintenance</option>
+              </select>
+            </div>
+          </div>
+          <div className="mt-4 flex gap-3 justify-end">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className={`px-6 py-2 text-sm font-bold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-all shadow-sm ${isSubmitting ? 'opacity-80' : ''}`}
+            >
+              {isSubmitting ? 'Processing...' : 'Register Asset'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
