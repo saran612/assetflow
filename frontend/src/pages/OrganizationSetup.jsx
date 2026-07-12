@@ -3,6 +3,7 @@ import {
   Building2, Users, ArrowDownToLine, Search, Filter, 
   Plus, Edit2, MoreVertical, Info, X
 } from 'lucide-react';
+import Modal from '../components/Modal';
 
 // Initial Mock Data
 const initialDepartments = [
@@ -469,127 +470,118 @@ export default function OrganizationSetup() {
       )}
 
       {/* Modal Overlay */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-[slideUp_0.3s_ease-out]">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100">
-              <h3 className="text-lg font-bold text-slate-900">
-                {modalType === 'department' ? (modalMode === 'add' ? 'Add New Department' : 'Edit Department') :
-                 modalType === 'category' ? 'Add New Category' :
-                 modalType === 'employee' ? 'Add New Employee' : 'Filter Options'}
-              </h3>
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleModalSubmit} className="p-5 flex flex-col gap-4">
-              
-              {modalType === 'department' && (
-                <>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department Name</label>
-                    <input 
-                      type="text" required
-                      value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Head Name</label>
-                      <input 
-                        type="text" required
-                        value={formData.headName} onChange={e => setFormData({...formData, headName: e.target.value})}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Head Title</label>
-                      <input 
-                        type="text" required
-                        value={formData.headTitle} onChange={e => setFormData({...formData, headTitle: e.target.value})}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Parent Dept</label>
-                      <select 
-                        value={formData.parentDept} onChange={e => setFormData({...formData, parentDept: e.target.value})}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                      >
-                        <option value="--">-- (None)</option>
-                        <option value="Field Ops">Field Ops</option>
-                        <option value="Engineering">Engineering</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status</label>
-                      <select 
-                        value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                      >
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                      </select>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {modalType === 'category' && (
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={
+          modalType === 'department' ? (modalMode === 'add' ? 'Add New Department' : 'Edit Department') :
+          modalType === 'category' ? 'Add New Category' :
+          modalType === 'employee' ? 'Add New Employee' : 'Filter Options'
+        }
+      >
+        <form onSubmit={handleModalSubmit} className="flex flex-col gap-4">
+          
+          {modalType === 'department' && (
+            <>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department Name</label>
+                <input 
+                  type="text" required
+                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Category Name</label>
-                  <input type="text" required placeholder="e.g. IT Equipment" value={catFormData.name} onChange={e => setCatFormData({ name: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Head Name</label>
+                  <input 
+                    type="text" required
+                    value={formData.headName} onChange={e => setFormData({...formData, headName: e.target.value})}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                  />
                 </div>
-              )}
-
-              {modalType === 'employee' && (
-                <>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Employee Name</label>
-                    <input type="text" required placeholder="e.g. John Doe" value={empFormData.name} onChange={e => setEmpFormData({...empFormData, name: e.target.value})} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department</label>
-                    <select value={empFormData.dept} onChange={e => setEmpFormData({...empFormData, dept: e.target.value})} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
-                      <option>Engineering</option>
-                      <option>Facilities</option>
-                      <option>Field Ops</option>
-                    </select>
-                  </div>
-                </>
-              )}
-
-              {modalType === 'filter' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status</label>
-                  <select value={filterFormStatus} onChange={e => setFilterFormStatus(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
-                    <option value="All">All</option>
-                    <option value="Active">Active Only</option>
-                    <option value="Inactive">Inactive Only</option>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Head Title</label>
+                  <input 
+                    type="text" required
+                    value={formData.headTitle} onChange={e => setFormData({...formData, headTitle: e.target.value})}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Parent Dept</label>
+                  <select 
+                    value={formData.parentDept} onChange={e => setFormData({...formData, parentDept: e.target.value})}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                  >
+                    <option value="--">-- (None)</option>
+                    <option value="Field Ops">Field Ops</option>
+                    <option value="Engineering">Engineering</option>
                   </select>
                 </div>
-              )}
-
-              <div className="mt-4 flex gap-3 justify-end">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                  className={`px-4 py-2 text-sm font-semibold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-colors shadow-sm ${isSubmitting ? 'opacity-80' : ''}`}
-                >
-                  {isSubmitting ? 'Processing...' : (modalType === 'filter' ? 'Apply Filters' : (modalMode === 'add' ? 'Create' : 'Save Changes'))}
-                </button>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status</label>
+                  <select 
+                    value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
               </div>
-            </form>
+            </>
+          )}
+
+          {modalType === 'category' && (
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Category Name</label>
+              <input type="text" required placeholder="e.g. IT Equipment" value={catFormData.name} onChange={e => setCatFormData({ name: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
+            </div>
+          )}
+
+          {modalType === 'employee' && (
+            <>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Employee Name</label>
+                <input type="text" required placeholder="e.g. John Doe" value={empFormData.name} onChange={e => setEmpFormData({...empFormData, name: e.target.value})} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department</label>
+                <select value={empFormData.dept} onChange={e => setEmpFormData({...empFormData, dept: e.target.value})} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
+                  <option>Engineering</option>
+                  <option>Facilities</option>
+                  <option>Field Ops</option>
+                </select>
+              </div>
+            </>
+          )}
+
+          {modalType === 'filter' && (
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status</label>
+              <select value={filterFormStatus} onChange={e => setFilterFormStatus(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
+                <option value="All">All</option>
+                <option value="Active">Active Only</option>
+                <option value="Inactive">Inactive Only</option>
+              </select>
+            </div>
+          )}
+
+          <div className="mt-4 flex gap-3 justify-end">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className={`px-6 py-2 text-sm font-bold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-all shadow-sm ${isSubmitting ? 'opacity-80' : ''}`}
+            >
+              {isSubmitting ? 'Processing...' : (modalType === 'filter' ? 'Apply Filters' : (modalMode === 'add' ? 'Create' : 'Save Changes'))}
+            </button>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
 
       <style>{`
         @keyframes pulse-soft {

@@ -134,14 +134,7 @@ export default function Login() {
         </div>
 
         <div className="relative z-10 flex flex-col gap-5">
-          <div className="flex items-center gap-3">
-            <div className="flex -space-x-2">
-              <img src="https://i.pravatar.cc/150?img=11" className="w-8 h-8 rounded-full border-2 border-[#2b1fcc] bg-white/90" alt="avatar" />
-              <img src="https://i.pravatar.cc/150?img=32" className="w-8 h-8 rounded-full border-2 border-[#2b1fcc] bg-white/60" alt="avatar" />
-              <div className="w-8 h-8 rounded-full border-2 border-[#2b1fcc] bg-white flex items-center justify-center text-[#2b1fcc] text-xs font-bold">+2k</div>
-            </div>
-            <span className="text-sm font-medium text-white/80 tracking-wide">Trusted by operations teams worldwide</span>
-          </div>
+          <span className="text-sm font-medium text-white/80 tracking-wide">Trusted by operations teams worldwide</span>
         </div>
 
         <div className="absolute top-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full bg-white/5 blur-3xl pointer-events-none"></div>

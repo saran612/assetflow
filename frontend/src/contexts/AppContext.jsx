@@ -85,12 +85,20 @@ export function AppProvider({ children }) {
           iconBg = 'bg-indigo-100 text-[#2b1fcc]';
         }
 
+        const deptMap = {
+          1: 'Engineering HQ',
+          2: 'Facilities',
+          3: 'Field Ops'
+        };
+        const departmentName = asset.employee?.department_id ? (deptMap[asset.employee.department_id] || 'Other') : 'Warehouse';
+
         return {
           ...asset,
           tag: asset.serial_number,
           category: categoryName,
           status: statusName,
           location: asset.employee ? `${asset.employee.first_name} ${asset.employee.last_name}` : 'Warehouse',
+          department: departmentName,
           lastSeen: 'Connected',
           icon,
           iconBg

@@ -10,7 +10,7 @@ import shutil
 
 from app.database import get_db
 from app.models import Asset, AssetHistory, Category, Employee
-from app.schemas import AssetResponse, AssetDetailResponse
+from app.schemas import AssetResponse, AssetDetailResponse, AssetListResponse
 from app.auth import get_current_employee, require_role
 
 router = APIRouter(
@@ -102,7 +102,7 @@ async def register_asset(
     return new_asset
 
 
-@router.get("", response_model=List[AssetResponse])
+@router.get("", response_model=List[AssetListResponse])
 def search_assets(
     search: Optional[str] = None,
     category_id: Optional[int] = None,

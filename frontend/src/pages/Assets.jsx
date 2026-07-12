@@ -72,12 +72,16 @@ export default function Assets() {
   // but the filtered list only recomputes after 300ms of inactivity.
   const debouncedSearch = useDebounce(searchQuery, 300);
 
+  // Dynamic categories and departments extraction
+  const uniqueCategories = ['All', ...new Set(assets.map(a => a.category).filter(Boolean))];
+  const uniqueDepartments = ['All', ...new Set(assets.map(a => a.department).filter(Boolean))];
+
   // Compute Filtered and Paginated Data
   const filteredAssets = assets.filter(a => {
     const matchesSearch = a.name.toLowerCase().includes(debouncedSearch.toLowerCase()) || a.tag.toLowerCase().includes(debouncedSearch.toLowerCase());
     const matchesCategory = categoryFilter === 'All' || a.category === categoryFilter;
     const matchesStatus = statusFilter === 'All' || a.status === statusFilter;
-    const matchesDept = departmentFilter === 'All' || a.location === departmentFilter;
+    const matchesDept = departmentFilter === 'All' || a.department === departmentFilter;
     return matchesSearch && matchesCategory && matchesStatus && matchesDept;
   });
 
@@ -177,10 +181,10 @@ export default function Assets() {
             value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
             className="px-4 py-2.5 rounded-full text-sm font-semibold bg-slate-50 border border-slate-200 text-slate-600 outline-none hover:bg-slate-100 focus:ring-2 focus:ring-[#2b1fcc]/20 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.41%200L6%204.58L10.59%200L12%201.41L6%207.41L0%201.41L1.41%200Z%22%20fill%3D%22%2394a3b8%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_8px] bg-[position:calc(100%-12px)_center] bg-no-repeat pr-8"
           >
-            <option value="All">Category</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Furniture">Furniture</option>
-            <option value="Vehicles">Vehicles</option>
+            <option value="All">All Categories</option>
+            {uniqueCategories.filter(c => c !== 'All').map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
           </select>
           <select 
             value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
@@ -195,10 +199,10 @@ export default function Assets() {
             value={departmentFilter} onChange={e => setDepartmentFilter(e.target.value)}
             className="px-4 py-2.5 rounded-full text-sm font-semibold bg-slate-50 border border-slate-200 text-slate-600 outline-none hover:bg-slate-100 focus:ring-2 focus:ring-[#2b1fcc]/20 transition-all cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.41%200L6%204.58L10.59%200L12%201.41L6%207.41L0%201.41L1.41%200Z%22%20fill%3D%22%2394a3b8%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_8px] bg-[position:calc(100%-12px)_center] bg-no-repeat pr-8"
           >
-            <option value="All">Department</option>
-            <option value="Engineering HQ">Engineering HQ</option>
-            <option value="Facilities">Facilities</option>
-            <option value="Field Ops">Field Ops</option>
+            <option value="All">All Departments</option>
+            {uniqueDepartments.filter(d => d !== 'All').map(dept => (
+              <option key={dept} value={dept}>{dept}</option>
+            ))}
           </select>
         </div>
       </div>

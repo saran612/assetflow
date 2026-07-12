@@ -192,3 +192,27 @@ assetflow/
 └── docs/
     └── system_specifications.md
 ```
+
+---
+
+## User Profiles & Permissions
+
+### Admin
+* Manages departments, asset categories, audit cycles, and employee/role assignment (Organization Setup)
+* Views organization-wide analytics
+
+### Asset Manager
+* Registers and allocates assets
+* Approves transfers, maintenance requests, and audit discrepancy resolution
+* Approves asset returns and condition check-in notes
+
+### Department Head
+* Views assets allocated to their department
+* Approves allocation/transfer requests within their department
+* Books shared resources on behalf of the department
+
+### Employee
+* Views assets allocated to them
+* Books shared resources
+* Raises maintenance requests
+* Initiates return/transfer requests

@@ -7,6 +7,7 @@ import {
   Sun, Moon
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { useAppContext } from '../contexts/AppContext';
 import Modal from '../components/Modal';
 
 export default function DashboardLayout() {
@@ -15,6 +16,27 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   
+  const { addAsset, loadAssets } = useAppContext();
+  const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
+  const [isSubmittingAsset, setIsSubmittingAsset] = useState(false);
+  const [assetFormData, setAssetFormData] = useState({ name: '', tag: '', category: 'Electronics', status: 'Available', location: '' });
+
+  const handleAddAssetSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmittingAsset(true);
+    try {
+      await addAsset(assetFormData);
+      setIsAddAssetOpen(false);
+      setAssetFormData({ name: '', tag: '', category: 'Electronics', status: 'Available', location: '' });
+      showToast('Asset registered successfully!', 'success');
+      await loadAssets();
+    } catch (err) {
+      showToast(err.message || 'Failed to register asset', 'error');
+    } finally {
+      setIsSubmittingAsset(false);
+    }
+  };
+
   // Overlay States
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -49,6 +71,13 @@ export default function DashboardLayout() {
     { name: 'Reports', path: '/reports', icon: BarChart2 },
     { name: 'Notifications', path: '/notifications', icon: Bell },
   ];
+
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    showToast('Logged out successfully.', 'success');
+    navigate('/');
+  };
 
   return (
     <div className="flex w-full h-screen bg-slate-50 overflow-hidden font-sans">
@@ -96,9 +125,21 @@ export default function DashboardLayout() {
         </nav>
 
         {/* User Profile */}
-        <div className="p-4 border-t border-slate-100">
-          <div className="flex items-center gap-3 px-3 py-2.5 bg-slate-100/60 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-            <img src="https://i.pravatar.cc/150?img=11" alt="Admin" className="w-10 h-10 rounded-xl object-cover shadow-sm border border-slate-200" />
+        <div className="p-4 border-t border-slate-100 relative">
+          {showUserMenu && (
+            <div className="absolute bottom-16 left-4 right-4 bg-white border border-slate-200 rounded-xl shadow-xl p-2 z-30 animate-[slideUp_0.2s_ease-out]">
+              <button 
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
+              >
+                Log Out
+              </button>
+            </div>
+          )}
+          <div 
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-3 px-3 py-2.5 bg-slate-100/60 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors"
+          >
             <div className="flex-1 min-w-0">
               <h4 className="text-[0.8rem] font-bold text-slate-900 truncate">Administrator</h4>
               <p className="text-[0.65rem] font-semibold text-slate-500 truncate">admin@assetflow.com</p>

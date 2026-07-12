@@ -311,4 +311,23 @@ def seed_db(db: Session):
                 db.add(alloc)
 
     db.commit()
+
+    # Seed one booking starting 15 minutes in the future
+    from app.models import AssetBooking
+    from datetime import datetime, timezone, timedelta
+    conf_asset = db.query(Asset).filter(Asset.serial_number == "CONFTR01").first()
+    first_emp = db.query(Employee).first()
+    if conf_asset and first_emp:
+        existing_booking = db.query(AssetBooking).filter(AssetBooking.asset_id == conf_asset.id).first()
+        if not existing_booking:
+            future_booking = AssetBooking(
+                asset_id=conf_asset.id,
+                employee_id=first_emp.id,
+                start_time=datetime.now(timezone.utc) + timedelta(minutes=15),
+                end_time=datetime.now(timezone.utc) + timedelta(hours=1, minutes=15),
+                status="upcoming"
+            )
+            db.add(future_booking)
+            db.commit()
+
     print("Database seeding completed successfully.")

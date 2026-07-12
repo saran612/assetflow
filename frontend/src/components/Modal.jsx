@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 export default function Modal({ isOpen, onClose, title, children }) {
@@ -6,6 +7,18 @@ export default function Modal({ isOpen, onClose, title, children }) {
   const [isActive, setIsActive] = useState(false);
   const modalRef = useRef(null);
   const previousFocusRef = useRef(null);
+
+  // --- Body scroll lock ---
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   // --- Mount / Unmount lifecycle ---
   // When isOpen becomes true: mount the DOM immediately, then activate transitions after a frame.
@@ -81,7 +94,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
 
   if (!shouldRender) return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
       style={{
@@ -116,6 +129,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

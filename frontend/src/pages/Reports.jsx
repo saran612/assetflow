@@ -64,7 +64,7 @@ export default function Reports() {
       <div className="grid grid-cols-2 gap-6">
         
         {/* Assets by Department (Bar Chart Mock) */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col h-80">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col h-80 relative overflow-hidden group">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xs font-bold text-slate-500 tracking-wider uppercase">Assets by Department</h3>
             <button className="text-slate-400 hover:text-slate-600"><MoreVertical className="w-4 h-4" /></button>
@@ -72,35 +72,36 @@ export default function Reports() {
           
           <div className="flex-1 flex items-end justify-between px-4 gap-4 relative mt-4">
             {/* Background grid lines */}
-            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-8">
-              <div className="border-b border-slate-100 w-full h-0"></div>
-              <div className="border-b border-slate-100 w-full h-0"></div>
-              <div className="border-b border-slate-100 w-full h-0"></div>
-              <div className="border-b border-slate-100 w-full h-0"></div>
+            <div className="absolute inset-x-0 top-0 bottom-8 flex flex-col justify-between pointer-events-none">
+              <div className="border-b border-slate-100/80 w-full h-0"></div>
+              <div className="border-b border-slate-100/80 w-full h-0"></div>
+              <div className="border-b border-slate-100/80 w-full h-0"></div>
+              <div className="border-b border-slate-100/80 w-full h-0"></div>
             </div>
-
+ 
             {/* Bars */}
             <div className="w-full flex justify-between items-end h-full z-10 pb-2">
               {barData.map((bar, idx) => (
                 <div 
                   key={idx}
-                  className={`w-1/5 ${bar.color} rounded-t-sm ${bar.hasShadow ? 'shadow-[0_4px_15px_rgba(43,31,204,0.3)]' : ''} cursor-pointer relative`}
+                  className={`w-1/5 bg-gradient-to-t from-[#2b1fcc] to-indigo-400 rounded-t-lg cursor-pointer relative transition-all duration-300`}
                   style={{ 
                     height: bar.height,
-                    opacity: hoveredBarIdx !== null && hoveredBarIdx !== idx ? 0.4 : 1,
-                    transform: hoveredBarIdx === idx ? 'scaleY(1.04)' : 'scaleY(1)',
+                    opacity: hoveredBarIdx !== null && hoveredBarIdx !== idx ? 0.35 : 1,
+                    transform: hoveredBarIdx === idx ? 'scale(1.05)' : 'scale(1)',
                     transformOrigin: 'bottom',
-                    transition: 'opacity 0.2s ease-out, transform 0.2s ease-out'
+                    boxShadow: hoveredBarIdx === idx ? '0 10px 25px -5px rgba(99, 102, 241, 0.45)' : 'none'
                   }}
                   onMouseEnter={() => setHoveredBarIdx(idx)}
                   onMouseLeave={() => setHoveredBarIdx(null)}
                 >
                   {hoveredBarIdx === idx && (
-                    <div className="absolute -top-10 left-1/2 pointer-events-none z-20" style={{ transform: 'translateX(-50%)' }}>
-                      <div className="bg-slate-800 text-white text-[0.65rem] font-bold px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap">
-                        {bar.label}: {bar.value}
+                    <div className="absolute -top-12 left-1/2 pointer-events-none z-20" style={{ transform: 'translateX(-50%)' }}>
+                      <div className="bg-slate-900 text-white text-[0.7rem] font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap border border-slate-800/80 flex flex-col items-center">
+                        <span className="text-slate-400 text-[0.6rem] font-semibold">Allocated</span>
+                        <span>{bar.value} Units</span>
                       </div>
-                      <div style={{ width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid #1e293b', margin: '0 auto' }}></div>
+                      <div style={{ width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '6px solid #0f172a', margin: '0 auto' }}></div>
                     </div>
                   )}
                 </div>
@@ -122,16 +123,16 @@ export default function Reports() {
             ))}
           </div>
         </div>
-
+ 
         {/* Maintenance Frequency (Line Chart Mock) */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col h-80">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col h-80 relative overflow-hidden group">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xs font-bold text-slate-500 tracking-wider uppercase">Maintenance Frequency</h3>
-            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md text-xs font-bold">
-              <TrendingUp className="w-3 h-3" /> +12%
+            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-lg text-xs font-bold">
+              <TrendingUp className="w-3.5 h-3.5" /> +12% this week
             </span>
           </div>
-
+ 
           <div className="flex-1 relative w-full h-full mt-4 flex flex-col">
             <div 
               className="flex-1 w-full relative"
@@ -139,17 +140,27 @@ export default function Reports() {
               onMouseLeave={() => setHoveredPointIdx(null)}
               style={{ cursor: 'crosshair' }}
             >
-              <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
+              {/* Grid Lines */}
+              <div className="absolute inset-x-0 top-0 bottom-0 flex flex-col justify-between pointer-events-none z-0">
+                <div className="border-b border-slate-100/70 w-full h-0"></div>
+                <div className="border-b border-slate-100/70 w-full h-0"></div>
+                <div className="border-b border-slate-100/70 w-full h-0"></div>
+                <div className="border-b border-slate-100/70 w-full h-0"></div>
+              </div>
+
+              <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="absolute inset-0 w-full h-full z-10">
                 <defs>
                   <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
-                    <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" stopColor-red="16" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
                   </linearGradient>
                 </defs>
-                <path d="M0,35 Q20,33 30,25 T60,15 T100,5 L100,40 L0,40 Z" fill="url(#chartGrad)" />
-                <path d="M0,35 Q20,33 30,25 T60,15 T100,5" fill="none" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" />
+                {/* Smooth Area Spline */}
+                <path d="M0,35 C20,33 30,22 40,22 C50,22 60,12 80,9 C90,9 100,5 100,5 L100,40 L0,40 Z" fill="url(#chartGrad)" />
+                {/* Glowing Smooth Stroke Line */}
+                <path d="M0,35 C20,33 30,22 40,22 C50,22 60,12 80,9 C90,9 100,5 100,5" fill="none" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" />
               </svg>
-
+ 
               {/* Vertical indicator line */}
               {hoveredPointIdx !== null && (
                 <div
@@ -158,35 +169,34 @@ export default function Reports() {
                     left: `${linePoints[hoveredPointIdx].x}%`,
                     top: 0,
                     bottom: 0,
-                    width: 1,
-                    background: 'repeating-linear-gradient(to bottom, #94a3b8 0, #94a3b8 4px, transparent 4px, transparent 8px)',
+                    width: 1.5,
+                    background: 'repeating-linear-gradient(to bottom, #10b981 0, #10b981 3px, transparent 3px, transparent 6px)',
                     zIndex: 4,
-                    transition: 'left 0.1s ease-out'
+                    transition: 'left 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
                   }}
                 />
               )}
-
+ 
               {/* Data point dot markers */}
               {linePoints.map((pt, idx) => (
                 <div
                   key={idx}
-                  className="absolute rounded-full pointer-events-none"
+                  className="absolute rounded-full pointer-events-none transition-all duration-200 ease-out"
                   style={{
                     left: `${pt.x}%`,
                     top: `${(pt.y / 40) * 100}%`,
-                    width: hoveredPointIdx === idx ? 12 : 7,
-                    height: hoveredPointIdx === idx ? 12 : 7,
-                    backgroundColor: hoveredPointIdx === idx ? '#10b981' : 'white',
-                    border: '2px solid #10b981',
+                    width: hoveredPointIdx === idx ? 14 : 8,
+                    height: hoveredPointIdx === idx ? 14 : 8,
+                    backgroundColor: hoveredPointIdx === idx ? '#10b981' : '#ffffff',
+                    border: '2.5px solid #10b981',
                     transform: 'translate(-50%, -50%)',
-                    opacity: hoveredPointIdx === null ? 0 : (hoveredPointIdx === idx ? 1 : 0.3),
-                    transition: 'all 0.15s ease-out',
+                    opacity: hoveredPointIdx === null ? 0.85 : (hoveredPointIdx === idx ? 1 : 0.35),
                     zIndex: hoveredPointIdx === idx ? 15 : 5,
-                    boxShadow: hoveredPointIdx === idx ? '0 0 0 4px rgba(16, 185, 129, 0.15)' : 'none'
+                    boxShadow: hoveredPointIdx === idx ? '0 0 12px 6px rgba(16, 185, 129, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)'
                   }}
                 />
               ))}
-
+ 
               {/* Hover tooltip */}
               {hoveredPointIdx !== null && (
                 <div
@@ -194,14 +204,15 @@ export default function Reports() {
                   style={{
                     left: `${linePoints[hoveredPointIdx].x}%`,
                     top: `${(linePoints[hoveredPointIdx].y / 40) * 100}%`,
-                    transform: 'translate(-50%, -140%)',
-                    transition: 'left 0.1s ease-out, top 0.1s ease-out'
+                    transform: 'translate(-50%, -145%)',
+                    transition: 'left 0.15s cubic-bezier(0.16, 1, 0.3, 1), top 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
                   }}
                 >
-                  <div className="bg-slate-800 text-white text-[0.65rem] font-bold px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap">
-                    {linePoints[hoveredPointIdx].label}: {linePoints[hoveredPointIdx].value} tasks
+                  <div className="bg-slate-900 text-white text-[0.7rem] font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap border border-slate-800/80 flex flex-col items-center">
+                    <span className="text-slate-400 text-[0.6rem] font-semibold">{linePoints[hoveredPointIdx].label}</span>
+                    <span>{linePoints[hoveredPointIdx].value} Tasks</span>
                   </div>
-                  <div style={{ width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid #1e293b', margin: '0 auto' }}></div>
+                  <div style={{ width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '6px solid #0f172a', margin: '0 auto' }}></div>
                 </div>
               )}
             </div>
@@ -222,7 +233,7 @@ export default function Reports() {
             </div>
           </div>
         </div>
-
+ 
       </div>
 
       {/* Middle Grid */}

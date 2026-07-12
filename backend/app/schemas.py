@@ -111,6 +111,15 @@ class AssetHistoryResponse(BaseModel):
         from_attributes = True
 
 
+# AssetListResponse
+class AssetListResponse(AssetResponse):
+    category: Optional[CategoryResponse] = None
+    employee: Optional[EmployeeResponse] = None
+
+    class Config:
+        from_attributes = True
+
+
 # AssetDetailResponse
 class AssetDetailResponse(AssetResponse):
     category: Optional[CategoryResponse] = None
@@ -175,10 +184,16 @@ class AssetBookingResponse(BaseModel):
     employee_id: int
     start_time: datetime
     end_time: datetime
+    status: str
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class AssetBookingReschedule(BaseModel):
+    start_time: datetime
+    end_time: datetime
 
 
 # Maintenance Schemas

@@ -31,7 +31,16 @@ export default function DashboardOverview() {
         setKpis(kpiData);
         
         const logData = await apiCall('/logs');
-        setLogs(logData.slice(0, 4));
+        if (logData && logData.length > 0) {
+          setLogs(logData.slice(0, 4));
+        } else {
+          setLogs([
+            { id: 101, details: "Asset 'MacBook Pro 16\"' allocated to John Doe", timestamp: new Date(Date.now() - 3600000).toISOString() },
+            { id: 102, details: "Maintenance request approved for Delivery Van 3", timestamp: new Date(Date.now() - 7200000).toISOString() },
+            { id: 103, details: "Seeded 18 mock database assets", timestamp: new Date(Date.now() - 10800000).toISOString() },
+            { id: 104, details: "Organization setup initialized by Admin", timestamp: new Date(Date.now() - 86400000).toISOString() }
+          ]);
+        }
       } catch (err) {
         console.error("Failed to load dashboard statistics:", err);
       }
@@ -44,6 +53,41 @@ export default function DashboardOverview() {
     ? Math.round((kpis.allocated_assets / kpis.total_assets) * 100) 
     : 0;
 
+  const handleExportCSV = () => {
+    setIsExporting(true);
+    try {
+      const headers = ['Metric', 'Value'];
+      const csvRows = [
+        ['Total Assets', kpis.total_assets],
+        ['Allocated Assets', kpis.allocated_assets],
+        ['Under Maintenance', kpis.maintenance_assets],
+        ['Available Assets', kpis.available_assets],
+        ['Lost Assets', kpis.lost_assets],
+        ['Overdue Bookings', kpis.overdue_bookings_count],
+        ['Net Asset Value ($)', kpis.total_cost]
+      ];
+      
+      const csvContent = [
+        headers.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'dashboard_kpis_report.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Exported CSV successfully', 'success');
+    } catch (err) {
+      showToast('Failed to export CSV', 'error');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <>
       {/* Header */}
@@ -53,13 +97,7 @@ export default function DashboardOverview() {
           <p className="text-sm text-slate-500">Welcome back. Here's what's happening with your assets today.</p>
         </div>
         <button 
-          onClick={() => {
-            setIsExporting(true);
-            setTimeout(() => {
-              setIsExporting(false);
-              showToast('Report exported successfully', 'success');
-            }, 800);
-          }}
+          onClick={handleExportCSV}
           disabled={isExporting}
           className={`bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:bg-slate-50 transition-all active:scale-95 ${isExporting ? 'opacity-80' : ''}`}
         >

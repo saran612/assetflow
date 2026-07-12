@@ -120,6 +120,7 @@ class AssetBooking(Base):
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
     start_time = Column(DateTime(timezone=True), nullable=False)
     end_time = Column(DateTime(timezone=True), nullable=False)
+    status = Column(String, default="upcoming", nullable=False)  # 'upcoming', 'ongoing', 'completed', 'cancelled'
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     asset = relationship("Asset", back_populates="bookings")
