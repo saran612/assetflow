@@ -96,6 +96,9 @@ async def register_asset(
     db.commit()
     db.refresh(new_asset)
 
+    from app.utils import log_activity
+    log_activity(db, current_user.id, "register_asset", f"Asset '{new_asset.name}' (S/N: {new_asset.serial_number}) registered")
+
     return new_asset
 
 

@@ -47,6 +47,10 @@ def create_maintenance_request(
     db.add(history_log)
     db.commit()
     db.refresh(new_request)
+
+    from app.utils import log_activity
+    log_activity(db, current_user.id, "maintenance_request", f"Requested maintenance for asset ID {new_request.asset_id} (Req ID: {new_request.id})")
+
     return new_request
 
 
@@ -74,6 +78,10 @@ def approve_maintenance(
     db.add(log)
     db.commit()
     db.refresh(mreq)
+
+    from app.utils import log_activity
+    log_activity(db, current_user.id, "maintenance_approve", f"Approved maintenance request ID {mreq.id}")
+
     return mreq
 
 
@@ -103,6 +111,10 @@ def assign_technician(
     db.add(log)
     db.commit()
     db.refresh(mreq)
+
+    from app.utils import log_activity
+    log_activity(db, current_user.id, "maintenance_assign_technician", f"Assigned technician '{req.technician_name}' to maintenance request ID {mreq.id}")
+
     return mreq
 
 
@@ -135,6 +147,10 @@ def start_maintenance(
     db.add(log)
     db.commit()
     db.refresh(mreq)
+
+    from app.utils import log_activity
+    log_activity(db, current_user.id, "maintenance_start", f"Started work on maintenance request ID {mreq.id}")
+
     return mreq
 
 
@@ -168,6 +184,11 @@ def resolve_maintenance(
     db.add(log)
     db.commit()
     db.refresh(mreq)
+
+    from app.utils import log_activity, create_notification
+    log_activity(db, current_user.id, "maintenance_resolve", f"Resolved maintenance request ID {mreq.id}")
+    create_notification(db, mreq.requester_id, f"Your maintenance request for asset ID {mreq.asset_id} (Req ID: {mreq.id}) has been resolved")
+
     return mreq
 
 

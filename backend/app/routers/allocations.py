@@ -72,4 +72,8 @@ def allocate_asset(
     db.commit()
     db.refresh(asset)
     
+    from app.utils import log_activity, create_notification
+    log_activity(db, current_user.id, "allocate_asset", f"Asset '{asset.name}' allocated to employee '{target_employee.email}'")
+    create_notification(db, target_employee.id, f"Asset '{asset.name}' (S/N: {asset.serial_number}) has been allocated to you")
+
     return asset

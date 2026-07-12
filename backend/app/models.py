@@ -150,3 +150,27 @@ class AuditItem(Base):
     cycle = relationship("AuditCycle", back_populates="items")
     asset = relationship("Asset")
     verified_by = relationship("Employee")
+
+
+class ActivityLog(Base):
+    __tablename__ = "activity_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
+    action = Column(String, nullable=False)
+    details = Column(String, nullable=False)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    employee = relationship("Employee")
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    recipient_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
+    message = Column(String, nullable=False)
+    status = Column(String, default="unread", nullable=False)  # 'unread', 'read'
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    recipient = relationship("Employee")

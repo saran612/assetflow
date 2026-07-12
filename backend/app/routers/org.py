@@ -9,6 +9,7 @@ from app.schemas import (
     EmployeeResponse, RolePromotionRequest
 )
 from app.auth import get_current_employee, require_role
+from app.utils import log_activity, create_notification
 
 router = APIRouter(
     prefix="/org",
@@ -32,6 +33,8 @@ def create_department(
     db.add(new_dept)
     db.commit()
     db.refresh(new_dept)
+    
+    log_activity(db, current_user.id, "create_department", f"Department '{new_dept.name}' created")
     return new_dept
 
 @router.get("/departments", response_model=List[DepartmentResponse])
@@ -59,6 +62,8 @@ def create_category(
     db.add(new_cat)
     db.commit()
     db.refresh(new_cat)
+    
+    log_activity(db, current_user.id, "create_category", f"Asset Category '{new_cat.name}' created")
     return new_cat
 
 @router.get("/categories", response_model=List[CategoryResponse])
@@ -101,4 +106,7 @@ def promote_employee(
     employee.role = promo_in.role
     db.commit()
     db.refresh(employee)
+    
+    log_activity(db, current_user.id, "promote_employee", f"Employee '{employee.email}' role updated to '{employee.role}'")
+    create_notification(db, employee.id, f"You have been promoted to '{employee.role}' by administrator {current_user.first_name} {current_user.last_name}")
     return employee

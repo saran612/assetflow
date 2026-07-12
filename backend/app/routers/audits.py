@@ -50,6 +50,10 @@ def create_audit_cycle(
 
     db.commit()
     db.refresh(new_cycle)
+
+    from app.utils import log_activity
+    log_activity(db, current_user.id, "create_audit_cycle", f"Audit cycle '{new_cycle.name}' created with {len(assets)} items")
+
     return new_cycle
 
 
@@ -119,6 +123,10 @@ def verify_audit_item(
     db.add(log)
     db.commit()
     db.refresh(item)
+
+    from app.utils import log_activity
+    log_activity(db, current_user.id, "verify_audit_item", f"Audit item ID {item.id} verified as '{verification.status}' in cycle '{item.cycle.name}'")
+
     return item
 
 
@@ -161,7 +169,15 @@ def close_audit_cycle(
                 performed_by_id=current_user.id
             )
             db.add(log)
+            
+            # Send notification to holder
+            if asset.employee_id:
+                from app.utils import create_notification
+                create_notification(db, asset.employee_id, f"Asset '{asset.name}' (S/N: {asset.serial_number}) has been marked as LOST during audit cycle '{cycle.name}'")
 
     db.commit()
     db.refresh(cycle)
+
+    from app.utils import log_activity
+    log_activity(db, current_user.id, "close_audit_cycle", f"Audit cycle '{cycle.name}' closed. Flipped {len(missing_items)} missing items to lost status")
     return cycle
