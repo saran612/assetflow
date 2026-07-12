@@ -105,40 +105,37 @@ export default function Booking() {
             </div>
 
             {/* Timeline */}
-            <div className="relative p-6 min-h-[400px]">
+            <div className="relative p-6 h-[400px]">
               
               {/* Background Grid Lines */}
-              <div className="absolute inset-0 p-6 pointer-events-none flex flex-col justify-between">
-                {['9:00', '10:00', '11:00', '12:00', '1:00'].map((time) => (
-                  <div key={time} className="flex items-center w-full h-[60px] relative">
-                    <span className="w-12 text-xs font-semibold text-slate-400">{time}</span>
-                    <div className="flex-1 h-px bg-slate-100"></div>
+              <div className="absolute top-6 left-6 right-6 bottom-6 pointer-events-none">
+                {['9:00', '10:00', '11:00', '12:00', '1:00'].map((time, idx) => (
+                  <div key={time} className="absolute w-full flex items-center" style={{ top: `${idx * 80}px` }}>
+                    <span className="w-14 text-xs font-semibold text-slate-400 -translate-y-[1px]">{time}</span>
+                    <div className="flex-1 h-px bg-slate-200"></div>
                   </div>
                 ))}
               </div>
 
               {/* Events overlay */}
-              <div className="absolute top-6 left-[80px] right-6 h-full pointer-events-none">
+              <div className="absolute top-6 left-[82px] right-6 bottom-6 pointer-events-none">
                 
-                {/* Booked Block */}
-                <div className="absolute top-[8px] left-0 w-[45%] h-[45px] bg-blue-100/80 border border-blue-200 rounded-lg p-2.5 pointer-events-auto cursor-pointer hover:shadow-md transition-shadow">
+                {/* Booked Block: 9:00 to 10:00 — upper-left column */}
+                <div className="absolute top-0 left-0 w-[55%] h-[70px] bg-blue-100/90 border border-blue-200 rounded-lg p-2.5 pointer-events-auto cursor-pointer hover:shadow-md transition-shadow">
                   <h4 className="text-[0.7rem] font-bold text-[#2b1fcc] leading-tight">Booked - Procurement Team - 9 to 10</h4>
                   <p className="text-[0.6rem] text-blue-500 font-semibold mt-0.5">Recurring Weekly</p>
                 </div>
 
-                {/* Conflict Block */}
-                <div className="absolute top-[30px] right-[5%] w-[48%] h-[60px] bg-red-50/90 border-[1.5px] border-dashed border-red-400 rounded-lg p-2.5 pointer-events-auto flex items-start gap-2 z-10 animate-pulse-conflict">
+                {/* Conflict Block: 9:30 to 10:30 — lower-right column, gap above */}
+                <div className="absolute top-[80px] left-[35%] right-0 h-[70px] bg-red-50/95 border-[1.5px] border-dashed border-red-400 rounded-lg p-2.5 pointer-events-auto flex items-start gap-2 animate-pulse-conflict shadow-sm">
                   <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-[0.7rem] font-bold text-red-600 leading-tight mb-0.5">Requested 9:30 to 10:30 - conflict - slot is unavailable</h4>
-                    <p className="text-[0.6rem] text-red-500 font-semibold line-through decoration-red-400">Action required to resolve overlap</p>
+                    <h4 className="text-[0.7rem] font-bold text-red-600 leading-tight mb-0.5">Requested 9:30 to 10:30 - conflict</h4>
+                    <p className="text-[0.6rem] text-red-500 font-semibold line-through decoration-red-400">Action required</p>
                   </div>
                 </div>
 
               </div>
-              
-              {/* Spacer for timeline layout */}
-              <div className="h-[240px]"></div>
 
             </div>
 
