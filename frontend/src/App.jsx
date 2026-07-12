@@ -1,383 +1,311 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Search, Bell, Settings, Plus, Calendar, FileText,
   LayoutDashboard, Users, Box, Network, CalendarCheck,
   Wrench, ClipboardCheck, BarChart2, AlertTriangle,
-  Laptop, Building2, Car, TrendingUp, Mail, Lock,
-  CheckSquare, Square, Info, ArrowRight
+  Building2, ArrowRightLeft, ArrowDownToLine, MoreVertical,
+  Edit2, Info, Filter, Archive
 } from 'lucide-react';
 import './App.css';
 
-function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function App() {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setIsLoggedIn(true);
-  };
+  const navLinks = [
+    { name: 'Dashboard', icon: LayoutDashboard, active: false },
+    { name: 'Organization setup', icon: Building2, active: true },
+    { name: 'Assets', icon: Box, active: false },
+    { name: 'Allocation & Transfer', icon: ArrowRightLeft, active: false },
+    { name: 'Resource Booking', icon: CalendarCheck, active: false },
+    { name: 'Maintenance', icon: Wrench, active: false },
+    { name: 'Audit', icon: ClipboardCheck, active: false },
+    { name: 'Reports', icon: BarChart2, active: false },
+    { name: 'Notifications', icon: Bell, active: false },
+  ];
 
-  if (!isLoggedIn) {
-    return (
-      <div className="login-wrapper">
-        <div className="login-card">
-          {/* Brand/Promo Side */}
-          <div className="brand-side-v2">
-            <div className="brand-header-v2">
-              <div className="logo-badge">AF</div>
-            </div>
-            
-            <div className="brand-content-v2">
-              <h1>
-                AssetFlow —<br />
-                <span className="fade-text">login</span>
-              </h1>
-              <p>
-                Manage your digital infrastructure with the world's most advanced asset orchestration platform.
-              </p>
-            </div>
-
-            <div className="brand-footer-v2">
-              <div className="trusted-row">
-                <div className="avatar-group">
-                  <div className="avatar-circle"></div>
-                  <div className="avatar-circle"></div>
-                  <div className="avatar-circle count">+12k</div>
-                </div>
-                <span>Trusted by teams worldwide</span>
-              </div>
-              <div className="system-status">
-                V2.4.0-STABLE &nbsp;•&nbsp; SYSTEM STATUS: ONLINE
-              </div>
-            </div>
-          </div>
-
-          {/* Form Side */}
-          <div className="form-side-v2">
-            <div className="form-container-v2">
-              <div className="welcome-header">
-                <h2>Welcome Back</h2>
-                <p>Enter your credentials to access your workspace.</p>
-              </div>
-
-              <form onSubmit={handleLogin} className="auth-form-v2">
-                <div className="input-group-v2">
-                  <label>EMAIL</label>
-                  <div className="input-wrapper-v2">
-                    <Mail className="input-icon-v2" size={16} />
-                    <input 
-                      type="email" 
-                      placeholder="name@company.com" 
-                      required 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="input-group-v2">
-                  <div className="label-row-v2">
-                    <label>PASSWORD</label>
-                    <a href="#" className="forgot-link-v2">Forgot password?</a>
-                  </div>
-                  <div className="input-wrapper-v2">
-                    <Lock className="input-icon-v2" size={16} />
-                    <input 
-                      type="password" 
-                      placeholder="********" 
-                      required 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <button type="submit" className="signin-btn-v2">
-                  Sign In to Workspace
-                </button>
-              </form>
-
-              <div className="divider-v2">
-                <span>SYSTEM ACCESS</span>
-              </div>
-
-              <div className="signup-section-v2">
-                <h3>New here?</h3>
-                <p>Join the orchestration revolution.</p>
-                
-                <div className="info-box-v2">
-                  <Info size={16} className="info-icon-v2" />
-                  <span>Sign up creates an employee account admin roles assigned later</span>
-                </div>
-
-                <button type="button" className="create-account-btn-v2">
-                  Create Account <ArrowRight size={16} />
-                </button>
-              </div>
-            </div>
-
-            <footer className="footer-v2">
-              <div className="footer-links-v2">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-              </div>
-              <span className="copyright-v2">© 2024 AssetFlow Inc.</span>
-            </footer>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // If logged in, render the dashboard
   return (
-    <div className="dashboard-container">
+    <div className="flex w-full h-screen bg-slate-50 overflow-hidden font-sans">
+      
       {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <div className="logo">
-            <TrendingUp className="logo-icon" />
-            <div className="logo-text">
-              <h2>AssetFlow</h2>
-              <span>Enterprise Management</span>
-            </div>
+      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col z-20 shadow-sm transition-transform duration-500 ease-out">
+        
+        {/* Brand */}
+        <div className="px-6 py-8 flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#2b1fcc] rounded-xl flex items-center justify-center shadow-md">
+            <Archive className="text-white w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-slate-900 leading-tight">AssetFlow</h1>
+            <p className="text-[0.65rem] text-slate-500 uppercase tracking-wider font-semibold">Enterprise Management</p>
           </div>
         </div>
-        
-        <ul className="nav-links">
-          <li className="nav-item active">
-            <LayoutDashboard className="nav-icon" />
-            Dashboard
-          </li>
-          <li className="nav-item">
-            <Users className="nav-icon" />
-            Organization
-          </li>
-          <li className="nav-item">
-            <Box className="nav-icon" />
-            Assets
-          </li>
-          <li className="nav-item">
-            <Network className="nav-icon" />
-            Allocation
-          </li>
-          <li className="nav-item">
-            <CalendarCheck className="nav-icon" />
-            Booking
-          </li>
-          <li className="nav-item">
-            <Wrench className="nav-icon" />
-            Maintenance
-          </li>
-          <li className="nav-item">
-            <ClipboardCheck className="nav-icon" />
-            Audit
-          </li>
-          <li className="nav-item">
-            <BarChart2 className="nav-icon" />
-            Reports
-          </li>
-          <li className="nav-item">
-            <Bell className="nav-icon" />
-            Notifications
-          </li>
-        </ul>
 
-        {/* Quick logout option */}
-        <div style={{ padding: '0 24px 24px' }}>
-          <button className="btn" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setIsLoggedIn(false)}>
-            Log Out
-          </button>
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-2 flex flex-col gap-1 overflow-y-auto">
+          {navLinks.map((link, index) => {
+            const Icon = link.icon;
+            return (
+              <button 
+                key={link.name}
+                style={{ 
+                  animationDelay: `${index * 50}ms`, 
+                  opacity: mounted ? 1 : 0, 
+                  transform: mounted ? 'translateX(0)' : 'translateX(-10px)'
+                }}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-300 ease-out w-full text-left
+                  ${link.active 
+                    ? 'bg-indigo-100/70 text-[#2b1fcc] font-semibold shadow-sm border-l-4 border-[#2b1fcc]' 
+                    : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900 hover:pl-4 border-l-4 border-transparent'
+                  }`}
+              >
+                <Icon className={`w-4 h-4 ${link.active ? 'text-[#2b1fcc]' : 'text-slate-400'}`} />
+                {link.name}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* User Profile */}
+        <div className="p-4 border-t border-slate-100">
+          <div className="flex items-center gap-3 px-2 py-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
+            <img src="https://i.pravatar.cc/150?img=11" alt="Alex Sterling" className="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm" />
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-semibold text-slate-900 truncate">Alex Sterling</h4>
+              <p className="text-[0.7rem] text-slate-500 truncate">Operations Dir.</p>
+            </div>
+            <Settings className="w-4 h-4 text-slate-400" />
+          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="main-content">
-        {/* Header */}
-        <header className="top-header">
-          <div className="search-bar">
-            <Search size={18} color="#8b92a5" />
-            <input type="text" placeholder="Search assets..." />
-          </div>
-          <div className="header-actions">
-            <button className="icon-button">
-              <Bell size={20} />
-            </button>
-            <button className="icon-button">
-              <Settings size={20} />
-            </button>
-            <img src="https://i.pravatar.cc/150?img=11" alt="User" className="avatar" />
-          </div>
-        </header>
-
-        {/* Alert Banner */}
-        <div className="alert-banner">
-          <AlertTriangle size={18} />
-          12 items flagged for follow-up.
-        </div>
-
-        <div className="content-wrapper">
-          {/* Dashboard Header */}
-          <div className="dashboard-header">
-            <div className="dashboard-title">
-              <h1>Dashboard Overview</h1>
-              <p>Welcome back, here's your asset summary for today.</p>
-            </div>
-            <div className="dashboard-actions">
-              <button className="btn btn-primary">
-                <Plus size={16} /> Register Asset
+      {/* Main Content Area */}
+      <main className="flex-1 relative overflow-y-auto bg-dot-pattern">
+        
+        <div 
+          className="max-w-[1200px] mx-auto p-8 relative z-10"
+          style={{
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
+        >
+          
+          {/* Top Navigation Row */}
+          <header className="flex items-center mb-8">
+            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Organization Setup</h2>
+            <div className="h-6 w-px bg-slate-300 mx-6"></div>
+            
+            <div className="flex items-center bg-slate-200/60 p-1 rounded-full shadow-inner">
+              <button className="px-5 py-1.5 text-sm font-semibold text-[#2b1fcc] bg-white rounded-full shadow-sm transition-all duration-300 transform scale-100">
+                Departments
               </button>
-              <button className="btn">
-                <Calendar size={16} /> Book Resource
+              <button className="px-5 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors duration-200">
+                Categories
               </button>
-              <button className="btn">
-                <FileText size={16} /> Raise Request
+              <button className="px-5 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors duration-200">
+                Employee
               </button>
             </div>
+          </header>
+
+          {/* Metric Cards Row */}
+          <div className="grid grid-cols-3 gap-6 mb-8">
+            {[
+              { title: 'TOTAL DEPARTMENTS', value: '12', icon: Building2, colorClass: 'text-[#2b1fcc]', bgClass: 'bg-indigo-100' },
+              { title: 'ACTIVE HEADS', value: '9', icon: Users, colorClass: 'text-emerald-600', bgClass: 'bg-emerald-100' },
+              { title: 'PENDING SYNCS', value: '0', icon: ArrowDownToLine, colorClass: 'text-slate-600', bgClass: 'bg-slate-200' },
+            ].map((metric, idx) => (
+              <div 
+                key={idx} 
+                className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 flex items-center gap-5 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg cursor-default"
+                style={{
+                  transitionDelay: `${idx * 100}ms`,
+                  opacity: mounted ? 1 : 0,
+                  transform: mounted ? 'translateY(0)' : 'translateY(15px)'
+                }}
+              >
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${metric.bgClass} ${metric.colorClass}`}>
+                  <metric.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-[0.7rem] font-bold text-slate-500 tracking-wider uppercase mb-1">{metric.title}</h3>
+                  <div className="text-3xl font-extrabold text-slate-900 leading-none">{metric.value}</div>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Metric Cards */}
-          <div className="metric-cards">
-            <div className="metric-card">
-              <div className="metric-icon">
-                <ClipboardCheck size={20} />
-              </div>
-              <h3>Assets Available</h3>
-              <div className="value">1,248</div>
+          {/* Toolbar */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#2b1fcc] transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search departments..." 
+                className="w-80 bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-all duration-300 focus:ring-4 focus:ring-indigo-500/20 focus:border-[#2b1fcc] shadow-sm"
+              />
             </div>
-            <div className="metric-card">
-              <div className="metric-icon">
-                <Network size={20} />
-              </div>
-              <h3>Allocated</h3>
-              <div className="value">3,492</div>
-            </div>
-            <div className="metric-card">
-              <div className="metric-icon">
-                <Calendar size={20} />
-              </div>
-              <h3>Active Bookings</h3>
-              <div className="value">87</div>
-            </div>
-            <div className="metric-card">
-              <div className="metric-icon">
-                <Car size={20} />
-              </div>
-              <h3>Pending Transfers</h3>
-              <div className="value">24</div>
-            </div>
-            <div className="metric-card danger">
-              <div className="metric-icon">
-                <TrendingUp size={20} />
-              </div>
-              <h3>Upcoming Returns</h3>
-              <div className="value">56</div>
+            
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm hover:bg-slate-50 hover:shadow transition-all duration-200 active:scale-95">
+                <Filter className="w-4 h-4" /> Filter
+              </button>
+              <button className="flex items-center gap-2 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 animate-pulse-soft">
+                <Plus className="w-4 h-4" /> Add Department
+              </button>
             </div>
           </div>
 
-          <div className="dashboard-grid">
-            {/* Recent Activity */}
-            <div className="card">
-              <div className="card-header">
-                <h2 className="card-title">Recent Activity</h2>
-                <a href="#" className="view-all">View All</a>
-              </div>
-              <div className="activity-list">
-                <div className="activity-item">
-                  <div className="activity-icon">
-                    <Laptop size={20} />
-                  </div>
-                  <div className="activity-details">
-                    <p>MacBook Pro #102 Allocated to Jane Doe</p>
-                    <span>10 minutes ago</span>
-                  </div>
-                  <div className="tag">IT Dept</div>
-                </div>
-                
-                <div className="activity-item">
-                  <div className="activity-icon teal">
-                    <Building2 size={20} />
-                  </div>
-                  <div className="activity-details">
-                    <p>Conf Room B2 Booked by Marketing</p>
-                    <span>45 minutes ago</span>
-                  </div>
-                  <div className="tag">Facilities</div>
-                </div>
-                
-                <div className="activity-item">
-                  <div className="activity-icon red">
-                    <Wrench size={20} />
-                  </div>
-                  <div className="activity-details">
-                    <p>Maintenance requested for HVAC Unit A</p>
-                    <span>2 hours ago</span>
-                  </div>
-                  <div className="tag">Maintenance</div>
-                </div>
-                
-                <div className="activity-item">
-                  <div className="activity-icon">
-                    <Car size={20} />
-                  </div>
-                  <div className="activity-details">
-                    <p>Fleet Vehicle 04 returned by John Smith</p>
-                    <span>Yesterday, 4:30 PM</span>
-                  </div>
-                  <div className="tag">Logistics</div>
-                </div>
-              </div>
-            </div>
+          {/* Data Table */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 border-b border-slate-200">
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[25%]">Department</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[25%]">Head</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[15%]">Parent Dept</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[15%]">Status</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[15%]">Last Modified</th>
+                    <th className="py-4 px-6 text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider w-[5%] text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  
+                  {/* Row 1 */}
+                  <tr className="group hover:bg-slate-50/80 transition-colors duration-150 cursor-pointer">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-[#2b1fcc]"></div>
+                        <span className="font-bold text-slate-900 text-sm tracking-tight">ENGINEERING</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <img src="https://i.pravatar.cc/150?img=32" alt="aditi rao" className="w-8 h-8 rounded-full shadow-sm" />
+                        <div>
+                          <div className="font-semibold text-slate-900 text-sm">aditi rao</div>
+                          <div className="text-[0.7rem] text-slate-500 leading-tight">Engineering Dir.</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-slate-500">--</td>
+                    <td className="py-4 px-6">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold group-hover:shadow-sm group-hover:saturate-150 transition-all">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Active
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-slate-500">Oct 24, 2023</td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <button className="p-1.5 text-slate-400 hover:text-[#2b1fcc] hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                        <button className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"><MoreVertical className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
 
-            {/* Asset Status */}
-            <div className="card">
-              <div className="card-header">
-                <h2 className="card-title">Asset Status</h2>
-              </div>
-              <div className="chart-container">
-                <div className="donut-chart">
-                  <svg viewBox="0 0 100 100" width="160" height="160">
-                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#eaedf2" strokeWidth="12" />
-                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#0ea5e9" strokeWidth="12" strokeDasharray="60 251.2" strokeDashoffset="-163.28" />
-                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#3b28cc" strokeWidth="12" strokeDasharray="163.28 251.2" strokeDashoffset="0" />
-                  </svg>
-                  <div className="donut-center">
-                    <h2>82%</h2>
-                    <span>Healthy</span>
-                  </div>
-                </div>
-                
-                <div className="legend">
-                  <div className="legend-item">
-                    <div className="legend-label">
-                      <div className="dot in-use"></div>
-                      <span>In Use</span>
-                    </div>
-                    <span className="legend-value">65%</span>
-                  </div>
-                  <div className="legend-item">
-                    <div className="legend-label">
-                      <div className="dot available"></div>
-                      <span>Available</span>
-                    </div>
-                    <span className="legend-value">25%</span>
-                  </div>
-                  <div className="legend-item">
-                    <div className="legend-label">
-                      <div className="dot maintenance"></div>
-                      <span>Maintenance</span>
-                    </div>
-                    <span className="legend-value">10%</span>
-                  </div>
-                </div>
-              </div>
+                  {/* Row 2 */}
+                  <tr className="group hover:bg-slate-50/80 transition-colors duration-150 cursor-pointer">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+                        <span className="font-bold text-slate-900 text-sm tracking-tight">FACILITIES</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <img src="https://i.pravatar.cc/150?img=12" alt="rohan mehta" className="w-8 h-8 rounded-full shadow-sm" />
+                        <div>
+                          <div className="font-semibold text-slate-900 text-sm">rohan mehta</div>
+                          <div className="text-[0.7rem] text-slate-500 leading-tight">Operations Lead</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-slate-500">--</td>
+                    <td className="py-4 px-6">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold group-hover:shadow-sm group-hover:saturate-150 transition-all">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Active
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-slate-500">Oct 22, 2023</td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <button className="p-1.5 text-slate-400 hover:text-[#2b1fcc] hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                        <button className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"><MoreVertical className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Row 3 (Nested) */}
+                  <tr className="group hover:bg-slate-50/80 transition-colors duration-150 cursor-pointer">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3 pl-6 relative">
+                        {/* Nested indicator line */}
+                        <div className="absolute left-1 top-1/2 -translate-y-1/2 w-4 h-px bg-slate-300"></div>
+                        <div className="absolute left-1 bottom-1/2 w-px h-10 bg-slate-300"></div>
+                        
+                        <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+                        <span className="font-bold text-slate-900 text-sm tracking-tight leading-tight">FIELD OPS<br/><span className="text-slate-500">(EAST)</span></span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <img src="https://i.pravatar.cc/150?img=5" alt="sana iqbal" className="w-8 h-8 rounded-full shadow-sm grayscale opacity-80" />
+                        <div>
+                          <div className="font-semibold text-slate-900 text-sm">sana iqbal</div>
+                          <div className="text-[0.7rem] text-slate-500 leading-tight">Field Coordinator</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-slate-700 font-medium">Field Ops</td>
+                    <td className="py-4 px-6">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold group-hover:shadow-sm transition-all">
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div> Inactive
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-slate-500">Sep 15, 2023</td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <button className="p-1.5 text-slate-400 hover:text-[#2b1fcc] hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                        <button className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"><MoreVertical className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
             </div>
           </div>
+
+          {/* Alert Box */}
+          <div className="bg-indigo-50/80 border border-indigo-100 rounded-xl p-5 flex items-start gap-3 shadow-sm"
+               style={{
+                  transitionDelay: '400ms',
+                  opacity: mounted ? 1 : 0,
+                  transform: mounted ? 'translateY(0)' : 'translateY(15px)'
+               }}>
+            <Info className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-slate-700 leading-relaxed">
+              <span className="font-bold text-slate-900">System Note:</span> Editing a department here also drives the picklist in Screen 4 & 5. Ensure all hierarchies are validated before synchronization.
+            </p>
+          </div>
+
         </div>
       </main>
+
+      <style>{`
+        @keyframes pulse-soft {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.9; transform: scale(0.98); box-shadow: 0 4px 14px 0 rgba(43, 31, 204, 0.39); }
+        }
+        .animate-pulse-soft {
+          animation: pulse-soft 3s infinite ease-in-out;
+        }
+      `}</style>
     </div>
   );
 }
-
-export default App;
