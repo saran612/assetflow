@@ -106,7 +106,16 @@ export default function DashboardLayout() {
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
           <div className="relative w-96">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input type="text" placeholder="Search resources, bookings, or assets..." className="w-full bg-slate-100/50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-[0.85rem] outline-none hover:bg-white focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-[#2b1fcc] transition-all shadow-sm" />
+            <input 
+              type="text" 
+              placeholder="Search resources, bookings, or assets..." 
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  showToast(`Searching for: ${e.target.value}`, 'success');
+                }
+              }}
+              className="w-full bg-slate-100/50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-[0.85rem] outline-none hover:bg-white focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-[#2b1fcc] transition-all shadow-sm" 
+            />
           </div>
           <div className="flex items-center gap-4 text-slate-400">
             <button 

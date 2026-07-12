@@ -39,6 +39,7 @@ export default function OrganizationSetup() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [modalType, setModalType] = useState('department');
   const [editingDept, setEditingDept] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,14 +54,16 @@ export default function OrganizationSetup() {
   const filteredCategories = categories.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
   const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()) || e.dept.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const openAddModal = () => {
+  const openAddModal = (type = 'department') => {
     setModalMode('add');
+    setModalType(type);
     setFormData({ name: '', headName: '', headTitle: '', parentDept: '--', status: 'Active' });
     setIsModalOpen(true);
   };
 
   const openEditModal = (dept) => {
     setModalMode('edit');
+    setModalType('department');
     setEditingDept(dept);
     setFormData({ ...dept });
     setIsModalOpen(true);
@@ -71,20 +74,28 @@ export default function OrganizationSetup() {
     setIsSubmitting(true);
     
     setTimeout(() => {
-      if (modalMode === 'add') {
-        const newDept = {
-          ...formData,
-          id: Date.now(),
-          avatar: Math.floor(Math.random() * 50).toString(),
-          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          color: 'bg-indigo-500',
-          nested: false
-        };
-        setDepartments([...departments, newDept]);
-        showToast('Department added successfully', 'success');
-      } else {
-        setDepartments(departments.map(d => d.id === editingDept.id ? { ...d, ...formData } : d));
-        showToast('Department updated successfully', 'success');
+      if (modalType === 'department') {
+        if (modalMode === 'add') {
+          const newDept = {
+            ...formData,
+            id: Date.now(),
+            avatar: Math.floor(Math.random() * 50).toString(),
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            color: 'bg-indigo-500',
+            nested: false
+          };
+          setDepartments([...departments, newDept]);
+          showToast('Department added successfully', 'success');
+        } else {
+          setDepartments(departments.map(d => d.id === editingDept.id ? { ...d, ...formData } : d));
+          showToast('Department updated successfully', 'success');
+        }
+      } else if (modalType === 'category') {
+        showToast('Category added successfully', 'success');
+      } else if (modalType === 'employee') {
+        showToast('Employee added successfully', 'success');
+      } else if (modalType === 'filter') {
+        showToast('Filters applied successfully', 'success');
       }
       setIsSubmitting(false);
       setIsModalOpen(false);
@@ -159,11 +170,14 @@ export default function OrganizationSetup() {
             </div>
             
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm hover:bg-slate-50 hover:shadow transition-all duration-200 active:scale-95">
+              <button 
+                onClick={() => openAddModal('filter')}
+                className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm hover:bg-slate-50 hover:shadow transition-all duration-200 active:scale-95"
+              >
                 <Filter className="w-4 h-4" /> Filter
               </button>
               <button 
-                onClick={openAddModal}
+                onClick={() => openAddModal('department')}
                 className="flex items-center gap-2 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 animate-pulse-soft"
               >
                 <Plus className="w-4 h-4" /> Add Department
@@ -281,7 +295,10 @@ export default function OrganizationSetup() {
             </div>
             
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 animate-pulse-soft">
+              <button 
+                onClick={() => openAddModal('category')}
+                className="flex items-center gap-2 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 animate-pulse-soft"
+              >
                 <Plus className="w-4 h-4" /> Add Category
               </button>
             </div>
@@ -345,7 +362,10 @@ export default function OrganizationSetup() {
             </div>
             
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 animate-pulse-soft">
+              <button 
+                onClick={() => openAddModal('employee')}
+                className="flex items-center gap-2 bg-[#2b1fcc] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-[#2015a3] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 animate-pulse-soft"
+              >
                 <Plus className="w-4 h-4" /> Add Employee
               </button>
             </div>
@@ -411,7 +431,9 @@ export default function OrganizationSetup() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-[slideUp_0.3s_ease-out]">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <h3 className="text-lg font-bold text-slate-900">
-                {modalMode === 'add' ? 'Add New Department' : 'Edit Department'}
+                {modalType === 'department' ? (modalMode === 'add' ? 'Add New Department' : 'Edit Department') :
+                 modalType === 'category' ? 'Add New Category' :
+                 modalType === 'employee' ? 'Add New Employee' : 'Filter Options'}
               </h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
@@ -421,55 +443,96 @@ export default function OrganizationSetup() {
               </button>
             </div>
             <form onSubmit={handleModalSubmit} className="p-5 flex flex-col gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department Name</label>
-                <input 
-                  type="text" required
-                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+              
+              {modalType === 'department' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department Name</label>
+                    <input 
+                      type="text" required
+                      value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Head Name</label>
+                      <input 
+                        type="text" required
+                        value={formData.headName} onChange={e => setFormData({...formData, headName: e.target.value})}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Head Title</label>
+                      <input 
+                        type="text" required
+                        value={formData.headTitle} onChange={e => setFormData({...formData, headTitle: e.target.value})}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Parent Dept</label>
+                      <select 
+                        value={formData.parentDept} onChange={e => setFormData({...formData, parentDept: e.target.value})}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                      >
+                        <option value="--">-- (None)</option>
+                        <option value="Field Ops">Field Ops</option>
+                        <option value="Engineering">Engineering</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status</label>
+                      <select 
+                        value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+                      >
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {modalType === 'category' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Head Name</label>
-                  <input 
-                    type="text" required
-                    value={formData.headName} onChange={e => setFormData({...formData, headName: e.target.value})}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                  />
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Category Name</label>
+                  <input type="text" required placeholder="e.g. IT Equipment" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Head Title</label>
-                  <input 
-                    type="text" required
-                    value={formData.headTitle} onChange={e => setFormData({...formData, headTitle: e.target.value})}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Parent Dept</label>
-                  <select 
-                    value={formData.parentDept} onChange={e => setFormData({...formData, parentDept: e.target.value})}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                  >
-                    <option value="--">-- (None)</option>
-                    <option value="Field Ops">Field Ops</option>
-                    <option value="Engineering">Engineering</option>
-                  </select>
-                </div>
+              )}
+
+              {modalType === 'employee' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Employee Name</label>
+                    <input type="text" required placeholder="e.g. John Doe" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department</label>
+                    <select className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
+                      <option>Engineering</option>
+                      <option>Facilities</option>
+                      <option>Field Ops</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {modalType === 'filter' && (
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status</label>
-                  <select 
-                    value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
+                  <select className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
+                    <option>All</option>
+                    <option>Active Only</option>
+                    <option>Inactive Only</option>
                   </select>
                 </div>
-              </div>
+              )}
+
               <div className="mt-4 flex gap-3 justify-end">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
                 <button 
@@ -477,7 +540,7 @@ export default function OrganizationSetup() {
                   disabled={isSubmitting}
                   className={`px-4 py-2 text-sm font-semibold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-colors shadow-sm ${isSubmitting ? 'opacity-80' : ''}`}
                 >
-                  {isSubmitting ? 'Processing...' : (modalMode === 'add' ? 'Create' : 'Save Changes')}
+                  {isSubmitting ? 'Processing...' : (modalType === 'filter' ? 'Apply Filters' : (modalMode === 'add' ? 'Create' : 'Save Changes'))}
                 </button>
               </div>
             </form>
