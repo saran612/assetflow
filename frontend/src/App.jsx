@@ -7,6 +7,7 @@ import OrganizationSetup from './pages/OrganizationSetup';
 import Assets from './pages/Assets';
 import Booking from './pages/Booking';
 import Allocation from './pages/Allocation';
+import Reports from './pages/Reports';
 import './App.css';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/assets" element={<Assets />} />
           <Route path="/booking" element={<Booking />} />
           <Route path="/allocation" element={<Allocation />} />
+          <Route path="/reports" element={<Reports />} />
           
           {/* Catch-all for other sidebar links currently not implemented */}
           <Route path="*" element={
