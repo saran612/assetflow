@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Archive, Mail, Lock, User, ArrowRight, Info } from 'lucide-react';
+import { apiCall } from '../utils/api';
 
 export default function Login() {
   const [mounted, setMounted] = useState(false);
@@ -16,7 +17,7 @@ export default function Login() {
     setMounted(true);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -31,11 +32,50 @@ export default function Login() {
       return setError('You must agree to the Terms & Conditions.');
     }
 
-    // Simulate network request
     setIsLoading(true);
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 800);
+    try {
+      if (isSignUp) {
+        const nameParts = formData.fullName.trim().split(' ');
+        const first_name = nameParts[0] || '';
+        const last_name = nameParts.slice(1).join(' ') || 'User';
+
+        await apiCall('/auth/signup', 'POST', {
+          email: formData.email,
+          password: formData.password,
+          first_name,
+          last_name
+        });
+
+        setIsSignUp(false);
+        setFormData({ fullName: '', email: formData.email, password: '', terms: false });
+        setError('');
+        alert('Account created successfully! Please sign in.');
+      } else {
+        const params = new URLSearchParams();
+        params.append('username', formData.email);
+        params.append('password', formData.password);
+
+        const response = await fetch('http://localhost:8000/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: params
+        });
+
+        if (!response.ok) {
+          throw new Error('Invalid email or password.');
+        }
+
+        const data = await response.json();
+        localStorage.setItem('token', data.access_token);
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.message || 'Authentication failed.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleMode = (e) => {
