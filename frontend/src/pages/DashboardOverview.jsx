@@ -3,11 +3,15 @@ import {
   Laptop, Building2, Car, TrendingUp, AlertTriangle, 
   Clock, FileText, CheckCircle, Info 
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { apiCall } from '../utils/api';
+import { useToast } from '../contexts/ToastContext';
 
 export default function DashboardOverview() {
   const [mounted, setMounted] = useState(false);
-  const [toastMessage, setToastMessage] = useState(null);
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const [isExporting, setIsExporting] = useState(false);
   const [kpis, setKpis] = useState({
     total_assets: 0,
     allocated_assets: 0,
@@ -35,11 +39,6 @@ export default function DashboardOverview() {
     loadDashboardData();
   }, []);
 
-  const showToast = (message) => {
-    setToastMessage(message);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
   // Compute active vs others
   const activePercent = kpis.total_assets > 0 
     ? Math.round((kpis.allocated_assets / kpis.total_assets) * 100) 
@@ -47,14 +46,6 @@ export default function DashboardOverview() {
 
   return (
     <>
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-[slideLeft_0.3s_ease-out]">
-          <Info className="w-5 h-5 text-indigo-400" />
-          <span className="text-sm font-medium">{toastMessage}</span>
-        </div>
-      )}
-
       {/* Header */}
       <div className="flex justify-between items-end mb-8">
         <div>
@@ -62,10 +53,17 @@ export default function DashboardOverview() {
           <p className="text-sm text-slate-500">Welcome back. Here's what's happening with your assets today.</p>
         </div>
         <button 
-          onClick={() => showToast("Downloading latest PDF report...")}
-          className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:bg-slate-50 transition-all active:scale-95"
+          onClick={() => {
+            setIsExporting(true);
+            setTimeout(() => {
+              setIsExporting(false);
+              showToast('Report exported successfully', 'success');
+            }, 800);
+          }}
+          disabled={isExporting}
+          className={`bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm hover:bg-slate-50 transition-all active:scale-95 ${isExporting ? 'opacity-80' : ''}`}
         >
-          Export Report
+          {isExporting ? 'Exporting...' : 'Export Report'}
         </button>
       </div>
 
@@ -79,7 +77,7 @@ export default function DashboardOverview() {
         ].map((stat, idx) => (
           <div 
             key={idx} 
-            onClick={() => showToast(`Opening ${stat.label} details...`)}
+            onClick={() => showToast(`Opening ${stat.label} details...`, 'success')}
             className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-md cursor-pointer group"
             style={{
               transitionDelay: `${idx * 100}ms`,
@@ -116,7 +114,10 @@ export default function DashboardOverview() {
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-base font-bold text-slate-900">Recent Activity</h3>
             <button 
-              onClick={() => showToast("Loading full activity log...")}
+              onClick={() => {
+                showToast("Navigating to activity log...", "success");
+                navigate('/audit');
+              }}
               className="text-sm font-semibold text-[#2b1fcc] hover:underline"
             >
               View All
@@ -128,7 +129,7 @@ export default function DashboardOverview() {
               logs.map((log) => (
                 <div 
                   key={log.id} 
-                  onClick={() => showToast(`View activity: ${log.details}`)}
+                  onClick={() => showToast(`View activity: ${log.details}`, 'success')}
                   className="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-xl transition-all cursor-pointer group hover:pr-4"
                 >
                   <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 bg-indigo-100 text-[#2b1fcc]">

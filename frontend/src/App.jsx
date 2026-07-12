@@ -11,35 +11,41 @@ import Reports from './pages/Reports';
 import Maintenance from './pages/Maintenance';
 import Audit from './pages/Audit';
 import Notifications from './pages/Notifications';
+import { ToastProvider } from './contexts/ToastContext';
+import { AppProvider } from './contexts/AppContext';
 import './App.css';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Route */}
-        <Route path="/" element={<Login />} />
-        
-        {/* Protected/Dashboard Routes */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<DashboardOverview />} />
-          <Route path="/organization-setup" element={<OrganizationSetup />} />
-          <Route path="/assets" element={<Assets />} />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/allocation" element={<Allocation />} />
-          <Route path="/maintenance" element={<Maintenance />} />
-          <Route path="/audit" element={<Audit />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/notifications" element={<Notifications />} />
-          
-          {/* Catch-all for other sidebar links currently not implemented */}
-          <Route path="*" element={
-            <div className="flex items-center justify-center h-full">
-              <h2 className="text-2xl font-bold text-slate-400">Page under construction</h2>
-            </div>
-          } />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <ToastProvider>
+      <AppProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Route */}
+            <Route path="/" element={<Login />} />
+            
+            {/* Protected/Dashboard Routes */}
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<DashboardOverview />} />
+              <Route path="/organization-setup" element={<OrganizationSetup />} />
+              <Route path="/assets" element={<Assets />} />
+              <Route path="/booking" element={<Booking />} />
+              <Route path="/allocation" element={<Allocation />} />
+              <Route path="/maintenance" element={<Maintenance />} />
+              <Route path="/audit" element={<Audit />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/notifications" element={<Notifications />} />
+              
+              {/* Catch-all for other sidebar links currently not implemented */}
+              <Route path="*" element={
+                <div className="flex items-center justify-center h-full">
+                  <h2 className="text-2xl font-bold text-slate-400">Page under construction</h2>
+                </div>
+              } />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AppProvider>
+    </ToastProvider>
   );
 }

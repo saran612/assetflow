@@ -23,8 +23,11 @@ const initialEmployees = [
   { id: 3, name: 'rohan mehta', title: 'Operations Lead', dept: 'Facilities', email: 'rohan@assetflow.co', status: 'Active', avatar: '12' }
 ];
 
+import { useToast } from '../contexts/ToastContext';
+
 export default function OrganizationSetup() {
   const [mounted, setMounted] = useState(false);
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('Departments');
   
   // Data State
@@ -37,6 +40,7 @@ export default function OrganizationSetup() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
   const [editingDept, setEditingDept] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({ name: '', headName: '', headTitle: '', parentDept: '--', status: 'Active' });
@@ -64,20 +68,27 @@ export default function OrganizationSetup() {
 
   const handleModalSubmit = (e) => {
     e.preventDefault();
-    if (modalMode === 'add') {
-      const newDept = {
-        ...formData,
-        id: Date.now(),
-        avatar: Math.floor(Math.random() * 50).toString(),
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        color: 'bg-indigo-500',
-        nested: false
-      };
-      setDepartments([...departments, newDept]);
-    } else {
-      setDepartments(departments.map(d => d.id === editingDept.id ? { ...d, ...formData } : d));
-    }
-    setIsModalOpen(false);
+    setIsSubmitting(true);
+    
+    setTimeout(() => {
+      if (modalMode === 'add') {
+        const newDept = {
+          ...formData,
+          id: Date.now(),
+          avatar: Math.floor(Math.random() * 50).toString(),
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          color: 'bg-indigo-500',
+          nested: false
+        };
+        setDepartments([...departments, newDept]);
+        showToast('Department added successfully', 'success');
+      } else {
+        setDepartments(departments.map(d => d.id === editingDept.id ? { ...d, ...formData } : d));
+        showToast('Department updated successfully', 'success');
+      }
+      setIsSubmitting(false);
+      setIsModalOpen(false);
+    }, 800);
   };
 
   return (
@@ -461,8 +472,12 @@ export default function OrganizationSetup() {
               </div>
               <div className="mt-4 flex gap-3 justify-end">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
-                <button type="submit" className="px-4 py-2 text-sm font-semibold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-colors shadow-sm">
-                  {modalMode === 'add' ? 'Create' : 'Save Changes'}
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className={`px-4 py-2 text-sm font-semibold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-colors shadow-sm ${isSubmitting ? 'opacity-80' : ''}`}
+                >
+                  {isSubmitting ? 'Processing...' : (modalMode === 'add' ? 'Create' : 'Save Changes')}
                 </button>
               </div>
             </form>

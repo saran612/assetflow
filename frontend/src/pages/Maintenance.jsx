@@ -3,87 +3,51 @@ import {
   CheckCircle2, ThermometerSnowflake, User, Cpu
 } from 'lucide-react';
 
-const boardData = [
-  {
-    id: 'pending',
-    title: 'PENDING',
-    cards: [
-      { 
-        id: 1, 
-        priority: 'High', 
-        priorityColor: 'bg-red-100 text-red-700', 
-        title: 'AF-0062 Projector bulb not turning on', 
-        icon: Cpu,
-        iconText: 'Electronics'
-      }
-    ]
-  },
-  {
-    id: 'approved',
-    title: 'APPROVED',
-    cards: [
-      { 
-        id: 2, 
-        priority: 'Medium', 
-        priorityColor: 'bg-blue-100 text-blue-700', 
-        title: 'AF-003 ac unit noisy compresor', 
-        icon: ThermometerSnowflake,
-        iconText: 'HVAC'
-      }
-    ]
-  },
-  {
-    id: 'assigned',
-    title: 'TECHNICIAN ASSIGNED',
-    cards: [
-      { 
-        id: 3, 
-        priority: 'Low', 
-        priorityColor: 'bg-slate-100 text-slate-600', 
-        title: 'AF-0078 forklift tech: R varma', 
-        tech: 'R. Varma', 
-        techInitials: 'RV' 
-      }
-    ]
-  },
-  {
-    id: 'progress',
-    title: 'IN PROGRESS',
-    cards: [
-      { 
-        id: 4, 
-        priority: 'Medium', 
-        priorityColor: 'bg-blue-100 text-blue-700', 
-        title: 'AF-897 Printer Jam parts ordered', 
-        progress: 40, 
-        statusText: 'Waiting on parts',
-        activeStyles: 'border-l-4 border-l-[#2b1fcc]'
-      }
-    ]
-  },
-  {
-    id: 'resolved',
-    title: 'RESOLVED',
-    cards: [
-      { 
-        id: 5, 
-        resolved: true, 
-        title: 'AF-873 Chair repair resolved 7 Jul', 
-        statusText: 'Closed out',
-        activeStyles: 'bg-emerald-50/50 border border-emerald-200'
-      }
-    ]
-  }
-];
+// boardData moved to AppContext
+
+import Modal from '../components/Modal';
+import { useAppContext } from '../contexts/AppContext';
+import { useToast } from '../contexts/ToastContext';
 
 export default function Maintenance() {
   const [mounted, setMounted] = useState(false);
+  const { boardData, updateMaintenanceStatus } = useAppContext();
+  const { showToast } = useToast();
+  
+  // Modal State
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const openCardModal = (card, currentColumnId) => {
+    setSelectedCard({ ...card, currentColumnId });
+    setNewStatus(currentColumnId);
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateStatus = (e) => {
+    e.preventDefault();
+    if (newStatus === selectedCard.currentColumnId) {
+      setIsModalOpen(false);
+      return;
+    }
+    
+    setIsUpdating(true);
+    setTimeout(() => {
+      updateMaintenanceStatus(selectedCard.id, newStatus);
+      setIsUpdating(false);
+      setIsModalOpen(false);
+      showToast('Task status updated successfully', 'success');
+    }, 600);
+  };
+
   return (
+    <>
     <div 
       className="max-w-[1400px] h-[calc(100vh-140px)] mx-auto flex flex-col animate-[fadeIn_0.3s_ease-out]"
       style={{
@@ -117,6 +81,7 @@ export default function Maintenance() {
               {column.cards.map((card) => (
                 <div 
                   key={card.id} 
+                  onClick={() => openCardModal(card, column.id)}
                   className={`bg-white rounded-xl p-3 shadow-sm border border-slate-100 hover:shadow-md transition-all cursor-pointer group ${card.activeStyles || ''}`}
                 >
                   
@@ -179,5 +144,40 @@ export default function Maintenance() {
       </div>
 
     </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Update Task Status">
+        {selectedCard && (
+          <form onSubmit={handleUpdateStatus} className="flex flex-col gap-4">
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-2">
+              <h4 className="font-bold text-slate-800 text-sm mb-1">{selectedCard.title}</h4>
+              <p className="text-xs text-slate-500">Current Status: <span className="font-semibold uppercase">{selectedCard.currentColumnId}</span></p>
+            </div>
+            
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Move to</label>
+              <select 
+                value={newStatus} onChange={e => setNewStatus(e.target.value)}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none bg-white"
+              >
+                {boardData.map(col => (
+                  <option key={col.id} value={col.id}>{col.title}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="mt-4 flex gap-3 justify-end">
+              <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+              <button 
+                type="submit" 
+                disabled={isUpdating}
+                className={`px-6 py-2 text-sm font-bold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-all shadow-sm ${isUpdating ? 'opacity-80' : ''}`}
+              >
+                {isUpdating ? 'Updating...' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+        )}
+      </Modal>
+    </>
   );
 }

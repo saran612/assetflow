@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Archive, Mail, Lock, User, ArrowRight, Info } from 'lucide-react';
-import { apiCall } from '../utils/api';
+import { useToast } from '../contexts/ToastContext';
 
 export default function Login() {
   const [mounted, setMounted] = useState(false);
@@ -9,6 +9,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   // Form State
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '', terms: false });
@@ -17,7 +18,7 @@ export default function Login() {
     setMounted(true);
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
@@ -33,49 +34,21 @@ export default function Login() {
     }
 
     setIsLoading(true);
-    try {
+    
+    // Simulate network latency
+    setTimeout(() => {
+      setIsLoading(false);
+      
       if (isSignUp) {
-        const nameParts = formData.fullName.trim().split(' ');
-        const first_name = nameParts[0] || '';
-        const last_name = nameParts.slice(1).join(' ') || 'User';
-
-        await apiCall('/auth/signup', 'POST', {
-          email: formData.email,
-          password: formData.password,
-          first_name,
-          last_name
-        });
-
         setIsSignUp(false);
         setFormData({ fullName: '', email: formData.email, password: '', terms: false });
-        setError('');
-        alert('Account created successfully! Please sign in.');
+        showToast('Account created successfully! Please sign in.', 'success');
       } else {
-        const params = new URLSearchParams();
-        params.append('username', formData.email);
-        params.append('password', formData.password);
-
-        const response = await fetch('http://localhost:8000/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: params
-        });
-
-        if (!response.ok) {
-          throw new Error('Invalid email or password.');
-        }
-
-        const data = await response.json();
-        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('token', 'mock_token_123');
+        showToast('Successfully signed in.', 'success');
         navigate('/dashboard');
       }
-    } catch (err) {
-      setError(err.message || 'Authentication failed.');
-    } finally {
-      setIsLoading(false);
-    }
+    }, 800);
   };
 
   const toggleMode = (e) => {
