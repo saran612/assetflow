@@ -143,3 +143,43 @@ class AssetTransferResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Booking Schemas
+class AssetBookingCreate(BaseModel):
+    asset_id: int
+    start_time: datetime
+    end_time: datetime
+
+class AssetBookingResponse(BaseModel):
+    id: int
+    asset_id: int
+    employee_id: int
+    start_time: datetime
+    end_time: datetime
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# Maintenance Schemas
+class AssetMaintenanceCreate(BaseModel):
+    asset_id: int
+    description: str
+
+class AssetMaintenanceResponse(BaseModel):
+    id: int
+    asset_id: int
+    requester_id: int
+    description: str
+    status: str
+    technician_name: Optional[str] = None
+    created_at: datetime
+    resolved_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class TechnicianAssignmentRequest(BaseModel):
+    technician_name: str
