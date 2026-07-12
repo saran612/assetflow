@@ -50,8 +50,8 @@ def allocate_asset(
             detail="Target employee not found"
         )
 
-    # 3. Check Double Allocation (status 'assigned' or employee_id is set)
-    if asset.employee_id is not None or asset.status == "assigned":
+    # 3. Check Double Allocation (status 'allocated' or employee_id is set)
+    if asset.employee_id is not None or asset.status == "allocated":
         holder = db.query(Employee).filter(Employee.id == asset.employee_id).first()
         holder_data = None
         if holder:
@@ -73,8 +73,10 @@ def allocate_asset(
         )
 
     # 4. Perform Allocation
+    from app.utils import validate_transition
+    validate_transition(asset.status, "allocated")
     asset.employee_id = req.employee_id
-    asset.status = "assigned"
+    asset.status = "allocated"
 
     # Create Allocation record
     new_allocation = Allocation(
@@ -134,8 +136,10 @@ def return_asset(
     # Clear asset ownership
     asset = db.query(Asset).filter(Asset.id == alloc.asset_id).first()
     if asset:
+        from app.utils import validate_transition
+        validate_transition(asset.status, "available")
         asset.employee_id = None
-        if asset.status not in ["maintenance", "lost", "retired"]:
+        if asset.status not in ["under_maintenance", "lost", "retired", "disposed"]:
             asset.status = "available"
 
         # Log in AssetHistory

@@ -133,15 +133,17 @@ def start_maintenance(
 
     mreq.status = "in_progress"
     
-    # Flip asset status to maintenance
+    # Flip asset status to under_maintenance
     asset = db.query(Asset).filter(Asset.id == mreq.asset_id).first()
     if asset:
-        asset.status = "maintenance"
+        from app.utils import validate_transition
+        validate_transition(asset.status, "under_maintenance")
+        asset.status = "under_maintenance"
         
     log = AssetHistory(
         asset_id=mreq.asset_id,
         action="status_changed",
-        details="Maintenance started. Asset status set to 'maintenance'",
+        details="Maintenance started. Asset status set to 'under_maintenance'",
         performed_by_id=current_user.id
     )
     db.add(log)
@@ -173,6 +175,8 @@ def resolve_maintenance(
     # Flip asset status back to available
     asset = db.query(Asset).filter(Asset.id == mreq.asset_id).first()
     if asset:
+        from app.utils import validate_transition
+        validate_transition(asset.status, "available")
         asset.status = "available"
         
     log = AssetHistory(

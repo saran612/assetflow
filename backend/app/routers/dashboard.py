@@ -23,8 +23,8 @@ def get_dashboard_kpis(
 
     # 1. Asset state counts
     total_assets = db.query(Asset).count()
-    allocated_assets = db.query(Asset).filter(Asset.status == "assigned").count()
-    maintenance_assets = db.query(Asset).filter(Asset.status == "maintenance").count()
+    allocated_assets = db.query(Asset).filter(Asset.status == "allocated").count()
+    maintenance_assets = db.query(Asset).filter(Asset.status == "under_maintenance").count()
     available_assets = db.query(Asset).filter(Asset.status == "available").count()
     lost_assets = db.query(Asset).filter(Asset.status == "lost").count()
 

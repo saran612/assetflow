@@ -47,7 +47,7 @@ class Asset(Base):
     serial_number = Column(String, unique=True, index=True, nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
-    status = Column(String, default="available", nullable=False)  # 'available', 'assigned', 'maintenance', 'retired', 'lost'
+    status = Column(String, default="available", nullable=False)  # 'available', 'allocated', 'reserved', 'under_maintenance', 'lost', 'retired', 'disposed'
     purchase_date = Column(Date, nullable=True)
     cost = Column(Numeric(10, 2), nullable=True)
     image_url = Column(String, nullable=True)

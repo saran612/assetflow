@@ -34,7 +34,7 @@ def create_audit_cycle(
 
     # 2. Query all active assets (not retired, not lost)
     assets = db.query(Asset).filter(
-        Asset.status.in_(["available", "assigned", "maintenance"])
+        Asset.status.in_(["available", "allocated", "under_maintenance"])
     ).all()
 
     # 3. Create an AuditItem for each asset
@@ -160,6 +160,8 @@ def close_audit_cycle(
     for item in missing_items:
         asset = db.query(Asset).filter(Asset.id == item.asset_id).first()
         if asset:
+            from app.utils import validate_transition
+            validate_transition(asset.status, "lost")
             asset.status = "lost"
             # Log in History
             log = AssetHistory(

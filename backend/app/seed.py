@@ -119,7 +119,7 @@ def seed_db(db: Session):
             "serial_number": "MBP2026001",
             "category_name": "Laptops",
             "employee_email": "engineer@assetflow.com",
-            "status": "assigned",
+            "status": "allocated",
             "purchase_date": date(2026, 1, 15),
             "cost": Decimal("2499.99")
         },
@@ -128,7 +128,7 @@ def seed_db(db: Session):
             "serial_number": "DELMON001",
             "category_name": "Monitors",
             "employee_email": "engineer@assetflow.com",
-            "status": "assigned",
+            "status": "allocated",
             "purchase_date": date(2026, 2, 10),
             "cost": Decimal("450.00")
         },
@@ -146,9 +146,27 @@ def seed_db(db: Session):
             "serial_number": "CHR-ERG-99",
             "category_name": "Furniture",
             "employee_email": "hr@assetflow.com",
-            "status": "assigned",
+            "status": "allocated",
             "purchase_date": date(2026, 4, 1),
             "cost": Decimal("350.00")
+        },
+        {
+            "name": "Meeting Room Monitor",
+            "serial_number": "MTGMON001",
+            "category_name": "Monitors",
+            "employee_email": None,
+            "status": "reserved",
+            "purchase_date": date(2026, 5, 10),
+            "cost": Decimal("300.00")
+        },
+        {
+            "name": "Legacy ThinkPad",
+            "serial_number": "LTP2019001",
+            "category_name": "Laptops",
+            "employee_email": None,
+            "status": "retired",
+            "purchase_date": date(2020, 1, 10),
+            "cost": Decimal("1200.00")
         }
     ]
 
@@ -169,7 +187,7 @@ def seed_db(db: Session):
             db.add(new_asset)
             db.flush()
 
-            if new_asset.status == "assigned" and new_asset.employee_id:
+            if new_asset.status == "allocated" and new_asset.employee_id:
                 import datetime
                 if new_asset.serial_number == "DELMON001":
                     expected = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=5)

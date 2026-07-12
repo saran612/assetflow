@@ -106,7 +106,7 @@ def approve_transfer(
     # 3. Update Asset Ownership
     source_id = asset.employee_id
     asset.employee_id = transfer.target_employee_id
-    asset.status = "assigned"
+    asset.status = "allocated"
 
     # 4. Update Transfer Status
     transfer.status = "approved"
