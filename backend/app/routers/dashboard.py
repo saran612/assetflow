@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 
 from app.database import get_db
-from app.models import Asset, AssetBooking, Employee
+from app.models import Asset, AssetBooking, Employee, Allocation
 from app.schemas import DashboardKPIsResponse
 from app.auth import get_current_employee
 
@@ -37,6 +37,22 @@ def get_dashboard_kpis(
     total_cost_query = db.query(func.sum(Asset.cost)).scalar()
     total_cost = Decimal(total_cost_query) if total_cost_query is not None else Decimal("0.00")
 
+    # 4. Overdue allocations count
+    overdue_returns = db.query(Allocation).filter(
+        Allocation.status == "active",
+        Allocation.expected_return_date != None,
+        Allocation.expected_return_date < current_time
+    ).count()
+
+    # 5. Upcoming returns count (in the next 7 days)
+    seven_days_later = current_time + timedelta(days=7)
+    upcoming_returns = db.query(Allocation).filter(
+        Allocation.status == "active",
+        Allocation.expected_return_date != None,
+        Allocation.expected_return_date >= current_time,
+        Allocation.expected_return_date <= seven_days_later
+    ).count()
+
     return {
         "total_assets": total_assets,
         "allocated_assets": allocated_assets,
@@ -44,5 +60,7 @@ def get_dashboard_kpis(
         "available_assets": available_assets,
         "lost_assets": lost_assets,
         "overdue_bookings_count": overdue_bookings_count,
-        "total_cost": total_cost
+        "total_cost": total_cost,
+        "overdue_returns": overdue_returns,
+        "upcoming_returns": upcoming_returns
     }

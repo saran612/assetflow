@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from datetime import date
 from decimal import Decimal
-from app.models import Department, Category, Employee, Asset
+from app.models import Department, Category, Employee, Asset, Allocation
 from app.auth import get_password_hash
 
 def seed_db(db: Session):
@@ -167,6 +167,22 @@ def seed_db(db: Session):
                 cost=asset["cost"]
             )
             db.add(new_asset)
+            db.flush()
+
+            if new_asset.status == "assigned" and new_asset.employee_id:
+                import datetime
+                if new_asset.serial_number == "DELMON001":
+                    expected = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=5)
+                else:
+                    expected = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)
+                
+                alloc = Allocation(
+                    asset_id=new_asset.id,
+                    employee_id=new_asset.employee_id,
+                    expected_return_date=expected,
+                    status="active"
+                )
+                db.add(alloc)
 
     db.commit()
     print("Database seeding completed successfully.")

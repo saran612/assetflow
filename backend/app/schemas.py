@@ -125,6 +125,24 @@ class AssetDetailResponse(AssetResponse):
 class AllocationRequest(BaseModel):
     asset_id: int
     employee_id: int
+    expected_return_date: Optional[datetime] = None
+
+class AllocationReturnRequest(BaseModel):
+    condition_notes: str
+
+class AllocationResponse(BaseModel):
+    id: int
+    asset_id: int
+    employee_id: int
+    allocated_at: datetime
+    expected_return_date: Optional[datetime] = None
+    returned_at: Optional[datetime] = None
+    return_condition_notes: Optional[str] = None
+    status: str
+    allocated_by_id: Optional[int] = None
+
+    class Config:
+        from_attributes = True
 
 
 # Transfer Schemas
@@ -234,6 +252,8 @@ class DashboardKPIsResponse(BaseModel):
     lost_assets: int
     overdue_bookings_count: int
     total_cost: Decimal
+    overdue_returns: int
+    upcoming_returns: int
 
 
 # Reports

@@ -58,6 +58,25 @@ class Asset(Base):
     transfers = relationship("AssetTransfer", back_populates="asset", cascade="all, delete-orphan")
     bookings = relationship("AssetBooking", back_populates="asset", cascade="all, delete-orphan")
     maintenances = relationship("AssetMaintenance", back_populates="asset", cascade="all, delete-orphan")
+    allocations = relationship("Allocation", back_populates="asset", cascade="all, delete-orphan")
+
+
+class Allocation(Base):
+    __tablename__ = "allocations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
+    allocated_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    expected_return_date = Column(DateTime(timezone=True), nullable=True)
+    returned_at = Column(DateTime(timezone=True), nullable=True)
+    return_condition_notes = Column(String, nullable=True)
+    status = Column(String, default="active", nullable=False)  # 'active', 'returned'
+    allocated_by_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
+
+    asset = relationship("Asset", back_populates="allocations")
+    employee = relationship("Employee", foreign_keys=[employee_id])
+    allocated_by = relationship("Employee", foreign_keys=[allocated_by_id])
 
 
 class AssetHistory(Base):
