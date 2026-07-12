@@ -5,7 +5,7 @@ from app.database import engine, Base, SessionLocal
 from app.seed import seed_db
 from fastapi.staticfiles import StaticFiles
 import os
-from app.routers import auth, org, assets, allocations, transfers, bookings, maintenance, audits, dashboard, reports
+from app.routers import auth, org, assets, allocations, transfers, bookings, maintenance, audits, dashboard, reports, notifications, logs
 from app.auth import get_current_employee
 from app.models import Employee
 from app.schemas import EmployeeResponse
@@ -37,7 +37,11 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,6 +61,8 @@ app.include_router(maintenance.router)
 app.include_router(audits.router)
 app.include_router(dashboard.router)
 app.include_router(reports.router)
+app.include_router(notifications.router)
+app.include_router(logs.router)
 
 @app.get("/")
 def read_root():

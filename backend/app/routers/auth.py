@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models import Employee
 from app.auth import verify_password, create_access_token, get_password_hash, get_current_employee
 from app.schemas import Token, EmployeeSignup, EmployeeResponse
+from app.utils import log_activity
 
 router = APIRouter(
     prefix="/auth",
@@ -33,6 +34,8 @@ def signup(employee_data: EmployeeSignup, db: Session = Depends(get_db)):
     db.add(new_employee)
     db.commit()
     db.refresh(new_employee)
+    
+    log_activity(db, new_employee.id, "signup", f"Employee registered: {new_employee.email}")
     return new_employee
 
 @router.post("/login", response_model=Token)
@@ -56,6 +59,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     access_token = create_access_token(
         data={"sub": employee.email, "role": employee.role}
     )
+    
+    log_activity(db, employee.id, "login", f"Employee logged in: {employee.email}")
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me", response_model=EmployeeResponse)

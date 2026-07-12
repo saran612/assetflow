@@ -80,6 +80,9 @@ def create_booking(
     db.commit()
     db.refresh(new_booking)
 
+    from app.utils import log_activity
+    log_activity(db, current_user.id, "create_booking", f"Asset ID {new_booking.asset_id} booked from {new_booking.start_time.strftime('%Y-%m-%d %H:%M')} to {new_booking.end_time.strftime('%Y-%m-%d %H:%M')}")
+
     return new_booking
 
 

@@ -59,6 +59,11 @@ def request_transfer(
     db.add(new_transfer)
     db.commit()
     db.refresh(new_transfer)
+
+    from app.utils import log_activity, create_notification
+    log_activity(db, current_user.id, "request_transfer", f"Transfer requested for asset ID {new_transfer.asset_id} to employee ID {new_transfer.target_employee_id}")
+    create_notification(db, new_transfer.target_employee_id, f"A transfer request has been initiated to assign asset ID {new_transfer.asset_id} to you")
+
     return new_transfer
 
 
@@ -116,6 +121,13 @@ def approve_transfer(
     db.add(history_log)
     db.commit()
     db.refresh(transfer)
+
+    from app.utils import log_activity, create_notification
+    log_activity(db, current_user.id, "approve_transfer", f"Approved transfer request ID {transfer.id} for asset '{asset.name}'")
+    create_notification(db, transfer.target_employee_id, f"Transfer request for asset '{asset.name}' has been approved. The asset is now assigned to you")
+    if transfer.source_employee_id:
+        create_notification(db, transfer.source_employee_id, f"Transfer request for asset '{asset.name}' has been approved. The asset is no longer assigned to you")
+
     return transfer
 
 
@@ -142,4 +154,9 @@ def reject_transfer(
     transfer.status = "rejected"
     db.commit()
     db.refresh(transfer)
+
+    from app.utils import log_activity, create_notification
+    log_activity(db, current_user.id, "reject_transfer", f"Rejected transfer request ID {transfer.id}")
+    create_notification(db, transfer.requested_by_id, f"Your transfer request for asset ID {transfer.asset_id} has been rejected by administration")
+
     return transfer

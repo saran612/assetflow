@@ -245,3 +245,27 @@ class AuditDiscrepancyReport(BaseModel):
     missing_items: int
     pending_items: int
     missing_assets: List[AssetResponse] = []
+
+
+# Activity Log Schemas
+class ActivityLogResponse(BaseModel):
+    id: int
+    employee_id: Optional[int] = None
+    action: str
+    details: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# Notification Schemas
+class NotificationResponse(BaseModel):
+    id: int
+    recipient_id: int
+    message: str
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
