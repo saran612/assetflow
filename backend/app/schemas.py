@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 
 # Auth Schemas
@@ -76,7 +76,6 @@ class RolePromotionRequest(BaseModel):
     role: str
 
 
-
 # Asset Schemas
 class AssetBase(BaseModel):
     name: str
@@ -86,12 +85,61 @@ class AssetBase(BaseModel):
     status: str
     purchase_date: Optional[date] = None
     cost: Optional[Decimal] = None
+    image_url: Optional[str] = None
 
 class AssetCreate(AssetBase):
     pass
 
 class AssetResponse(AssetBase):
     id: int
+
+    class Config:
+        from_attributes = True
+
+
+# AssetHistory Schemas
+class AssetHistoryResponse(BaseModel):
+    id: int
+    asset_id: int
+    employee_id: Optional[int] = None
+    action: str
+    details: Optional[str] = None
+    timestamp: datetime
+    performed_by_id: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+
+
+# AssetDetailResponse
+class AssetDetailResponse(AssetResponse):
+    category: Optional[CategoryResponse] = None
+    employee: Optional[EmployeeResponse] = None
+    history: List[AssetHistoryResponse] = []
+
+    class Config:
+        from_attributes = True
+
+
+# Allocation Schemas
+class AllocationRequest(BaseModel):
+    asset_id: int
+    employee_id: int
+
+
+# Transfer Schemas
+class AssetTransferRequest(BaseModel):
+    asset_id: int
+    target_employee_id: int
+
+class AssetTransferResponse(BaseModel):
+    id: int
+    asset_id: int
+    source_employee_id: Optional[int] = None
+    target_employee_id: int
+    requested_by_id: int
+    status: str
+    created_at: datetime
 
     class Config:
         from_attributes = True
