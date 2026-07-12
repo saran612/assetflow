@@ -141,7 +141,7 @@ export default function Login() {
       </div>
 
       {/* Form Side */}
-      <div className="flex-[0.9] flex items-center justify-center bg-white p-8 relative">
+      <div className="flex-1 flex items-center justify-center bg-white p-8 relative">
         <div 
           className="w-full max-w-md animate-[fadeIn_0.4s_ease-out]"
           style={{
