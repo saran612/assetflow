@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   CheckCircle2, ThermometerSnowflake, User, Cpu
 } from 'lucide-react';
@@ -19,6 +19,53 @@ export default function Maintenance() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newStatus, setNewStatus] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Drag-and-Drop State
+  const [draggedCardId, setDraggedCardId] = useState(null);
+  const [dragSourceColumnId, setDragSourceColumnId] = useState(null);
+  const [dragOverColumnId, setDragOverColumnId] = useState(null);
+
+  const handleDragStart = useCallback((e, cardId, columnId) => {
+    setDraggedCardId(cardId);
+    setDragSourceColumnId(columnId);
+    e.dataTransfer.effectAllowed = 'move';
+    // Store card id in dataTransfer for cross-browser support
+    e.dataTransfer.setData('text/plain', String(cardId));
+  }, []);
+
+  const handleDragOver = useCallback((e, columnId) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverColumnId !== columnId) {
+      setDragOverColumnId(columnId);
+    }
+  }, [dragOverColumnId]);
+
+  const handleDragLeave = useCallback((e, columnId) => {
+    // Only clear if we're actually leaving the column (not entering a child)
+    const relatedTarget = e.relatedTarget;
+    if (relatedTarget && e.currentTarget.contains(relatedTarget)) return;
+    if (dragOverColumnId === columnId) {
+      setDragOverColumnId(null);
+    }
+  }, [dragOverColumnId]);
+
+  const handleDrop = useCallback((e, targetColumnId) => {
+    e.preventDefault();
+    if (draggedCardId != null && dragSourceColumnId !== targetColumnId) {
+      updateMaintenanceStatus(draggedCardId, targetColumnId);
+      showToast('Task moved successfully', 'success');
+    }
+    setDraggedCardId(null);
+    setDragSourceColumnId(null);
+    setDragOverColumnId(null);
+  }, [draggedCardId, dragSourceColumnId, updateMaintenanceStatus, showToast]);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedCardId(null);
+    setDragSourceColumnId(null);
+    setDragOverColumnId(null);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -66,7 +113,19 @@ export default function Maintenance() {
       {/* Kanban Board Container */}
       <div className="flex-1 grid grid-cols-5 gap-4 pb-4">
         {boardData.map((column) => (
-          <div key={column.id} className="flex flex-col bg-slate-50/50 rounded-2xl border border-slate-100 p-3 min-w-0">
+          <div 
+            key={column.id} 
+            className="flex flex-col bg-slate-50/50 rounded-2xl border border-slate-100 p-3 min-w-0"
+            onDragOver={(e) => handleDragOver(e, column.id)}
+            onDragLeave={(e) => handleDragLeave(e, column.id)}
+            onDrop={(e) => handleDrop(e, column.id)}
+            style={{
+              outline: dragOverColumnId === column.id && dragSourceColumnId !== column.id ? '2px solid #2b1fcc' : 'none',
+              outlineOffset: '-2px',
+              borderRadius: '1rem',
+              transition: 'outline 0.15s ease-out'
+            }}
+          >
             
             {/* Column Header */}
             <div className="flex items-center justify-between mb-4 px-1">
@@ -80,9 +139,17 @@ export default function Maintenance() {
             <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1 pb-2">
               {column.cards.map((card) => (
                 <div 
-                  key={card.id} 
-                  onClick={() => openCardModal(card, column.id)}
+                  key={card.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, card.id, column.id)}
+                  onDragEnd={handleDragEnd}
+                  onClick={() => { if (draggedCardId == null) openCardModal(card, column.id); }}
                   className={`bg-white rounded-xl p-3 shadow-sm border border-slate-100 hover:shadow-md transition-all cursor-pointer group ${card.activeStyles || ''}`}
+                  style={{
+                    opacity: draggedCardId === card.id ? 0.4 : 1,
+                    cursor: draggedCardId != null ? 'grabbing' : 'grab',
+                    transition: 'opacity 0.2s ease-out'
+                  }}
                 >
                   
                   {/* Resolved Card Style */}

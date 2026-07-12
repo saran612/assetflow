@@ -24,6 +24,7 @@ const initialEmployees = [
 ];
 
 import { useToast } from '../contexts/ToastContext';
+import { useDebounce } from '../utils/hooks';
 
 export default function OrganizationSetup() {
   const [mounted, setMounted] = useState(false);
@@ -54,18 +55,21 @@ export default function OrganizationSetup() {
     setMounted(true);
   }, []);
 
+  // Debounced search for filter computations
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
   const filteredDepartments = departments.filter(d => {
-    const matchSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase()) || d.headName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchSearch = d.name.toLowerCase().includes(debouncedSearch.toLowerCase()) || d.headName.toLowerCase().includes(debouncedSearch.toLowerCase());
     const matchStatus = filterStatus === 'All' || d.status === filterStatus;
     return matchSearch && matchStatus;
   });
   const filteredCategories = categories.filter(c => {
-    const matchSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchSearch = c.name.toLowerCase().includes(debouncedSearch.toLowerCase());
     const matchStatus = filterStatus === 'All' || c.status === filterStatus;
     return matchSearch && matchStatus;
   });
   const filteredEmployees = employees.filter(e => {
-    const matchSearch = e.name.toLowerCase().includes(searchQuery.toLowerCase()) || e.dept.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchSearch = e.name.toLowerCase().includes(debouncedSearch.toLowerCase()) || e.dept.toLowerCase().includes(debouncedSearch.toLowerCase());
     const matchStatus = filterStatus === 'All' || e.status === filterStatus;
     return matchSearch && matchStatus;
   });
