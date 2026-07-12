@@ -1,14 +1,11 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   Laptop, Projector, Sofa,
   ThermometerSnowflake, Cpu
 } from 'lucide-react';
+import { apiCall } from '../utils/api';
 
-const initialAssets = [
-  { id: 1, tag: 'AF-0012', name: 'Dell Laptop', category: 'Electronics', status: 'Allocated', location: 'bengaluru', lastSeen: '2 hours ago', icon: Laptop, iconBg: 'bg-indigo-100 text-[#2b1fcc]' },
-  { id: 2, tag: 'AF-0062', name: 'Projector', category: 'Electronics', status: 'Maintenance', location: 'HQ floor 2', lastSeen: 'Yesterday', icon: Projector, iconBg: 'bg-indigo-100 text-[#2b1fcc]' },
-  { id: 3, tag: 'AF-0201', name: 'Office chair', category: 'Furniture', status: 'Available', location: 'Warehouse', lastSeen: '3 days ago', icon: Sofa, iconBg: 'bg-slate-200 text-slate-500' }
-];
+const initialAssets = [];
 
 const initialBoardData = [
   {
@@ -61,17 +58,64 @@ export function AppProvider({ children }) {
   const [bookings, setBookings] = useState(initialBookings);
   const [allocationHistory, setAllocationHistory] = useState(initialAllocationHistory);
 
-  const addAsset = (newAsset) => {
-    let icon = Sofa;
-    if (newAsset.category === 'Electronics') icon = Laptop;
-    
-    setAssets(prev => [{
-      ...newAsset,
-      id: Date.now(),
-      icon,
-      iconBg: 'bg-indigo-100 text-[#2b1fcc]',
-      lastSeen: 'Just now'
-    }, ...prev]);
+  const loadAssets = async () => {
+    try {
+      const data = await apiCall('/assets');
+      const mapped = data.map(asset => {
+        let categoryName = asset.category?.name || 'Electronics';
+        let statusName = asset.status;
+        if (statusName) {
+          // Replace under_maintenance with Maintenance for frontend tag status styles
+          if (statusName === 'under_maintenance') {
+            statusName = 'Maintenance';
+          } else {
+            statusName = statusName.charAt(0).toUpperCase() + statusName.slice(1);
+          }
+        } else {
+          statusName = 'Available';
+        }
+        return {
+          ...asset,
+          tag: asset.serial_number,
+          category: categoryName,
+          status: statusName,
+          location: asset.employee ? `${asset.employee.first_name} ${asset.employee.last_name}` : 'Warehouse',
+          lastSeen: 'Connected'
+        };
+      });
+      setAssets(mapped);
+    } catch (err) {
+      console.error('Failed to fetch assets:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadAssets();
+  }, []);
+
+  const addAsset = async (newAsset) => {
+    let categoryId = 1;
+    const catLower = newAsset.category?.toLowerCase() || '';
+    if (catLower.includes('laptop')) categoryId = 1;
+    else if (catLower.includes('monitor')) categoryId = 2;
+    else if (catLower.includes('phone') || catLower.includes('electronics')) categoryId = 3;
+    else if (catLower.includes('furniture')) categoryId = 4;
+
+    const payload = {
+      name: newAsset.name,
+      serial_number: newAsset.tag || `SN-${Date.now()}`,
+      category_id: categoryId,
+      cost: newAsset.cost ? parseFloat(newAsset.cost) : 100.0,
+      status: newAsset.status?.toLowerCase() || 'available'
+    };
+
+    try {
+      await apiCall('/assets', 'POST', payload);
+      await loadAssets();
+    } catch (err) {
+      console.error('Failed to add asset:', err);
+      throw err;
+    }
   };
 
   const addBooking = (booking) => {

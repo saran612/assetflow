@@ -12,12 +12,28 @@ import Modal from '../components/Modal';
 import { useAppContext } from '../contexts/AppContext';
 import { useToast } from '../contexts/ToastContext';
 import { useDebounce } from '../utils/hooks';
+import { apiCall } from '../utils/api';
 
 export default function Assets() {
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { assets, addAsset } = useAppContext();
   const { showToast } = useToast();
+  
+  const [kpis, setKpis] = useState({ total_assets: 0, allocated_assets: 0, maintenance_assets: 0, available_assets: 0 });
+
+  const loadKpis = async () => {
+    try {
+      const data = await apiCall('/dashboard/kpis');
+      setKpis(data);
+    } catch (err) {
+      console.error('Failed to load KPIs:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadKpis();
+  }, []);
   
   // Modal & Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,16 +84,20 @@ export default function Assets() {
     showToast('Exported CSV successfully', 'success');
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      addAsset(formData);
+    try {
+      await addAsset(formData);
       setIsSubmitting(false);
       setIsModalOpen(false);
       setFormData({ name: '', tag: '', category: 'Electronics', status: 'Available', location: '' });
       showToast('Asset registered successfully!', 'success');
-    }, 800);
+      loadKpis();
+    } catch (err) {
+      setIsSubmitting(false);
+      showToast(err.message || 'Failed to register asset', 'error');
+    }
   };
 
   useEffect(() => {
@@ -167,10 +187,10 @@ export default function Assets() {
       {/* Metrics Row */}
       <div className="grid grid-cols-4 gap-5">
         {[
-          { label: 'Total Assets', value: '1,248', icon: Archive, bg: 'bg-indigo-100', color: 'text-indigo-500' },
-          { label: 'Currently Allocated', value: '856', icon: CheckSquare, bg: 'bg-blue-50', color: 'text-blue-500' },
-          { label: 'In Maintenance', value: '42', icon: Wrench, bg: 'bg-orange-50', color: 'text-orange-500' },
-          { label: 'Available', value: '350', icon: CheckCircle2, bg: 'bg-emerald-50', color: 'text-emerald-500' },
+          { label: 'Total Assets', value: kpis.total_assets || 0, icon: Archive, bg: 'bg-indigo-100', color: 'text-indigo-500' },
+          { label: 'Currently Allocated', value: kpis.allocated_assets || 0, icon: CheckSquare, bg: 'bg-blue-50', color: 'text-blue-500' },
+          { label: 'In Maintenance', value: kpis.maintenance_assets || 0, icon: Wrench, bg: 'bg-orange-50', color: 'text-orange-500' },
+          { label: 'Available', value: kpis.available_assets || 0, icon: CheckCircle2, bg: 'bg-emerald-50', color: 'text-emerald-500' },
         ].map((metric, idx) => (
           <div key={idx} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center gap-5 hover:shadow-md transition-shadow cursor-pointer">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${metric.bg} ${metric.color}`}>

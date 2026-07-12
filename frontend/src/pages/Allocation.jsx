@@ -9,15 +9,24 @@ import { useAppContext } from '../contexts/AppContext';
 export default function Allocation() {
   const [mounted, setMounted] = useState(false);
   const { showToast } = useToast();
-  const { allocationHistory, addAllocationEntry } = useAppContext();
+  const { assets, allocationHistory, addAllocationEntry } = useAppContext();
   
   // Form State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ to: '', reason: '' });
+  const [selectedAssetId, setSelectedAssetId] = useState('');
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (assets && assets.length > 0 && !selectedAssetId) {
+      setSelectedAssetId(assets[0].id);
+    }
+  }, [assets, selectedAssetId]);
+
+  const selectedAsset = assets ? (assets.find(a => String(a.id) === String(selectedAssetId)) || assets[0]) : null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -52,13 +61,15 @@ export default function Allocation() {
       </div>
 
       {/* Alert Box */}
-      <div className="bg-red-50/80 border border-red-100 rounded-xl p-4 flex items-start gap-3 shadow-sm mt-2">
-        <AlertCircle className="w-5 h-5 text-[#d93025] flex-shrink-0 mt-0.5" fill="currentColor" stroke="white" />
-        <div>
-          <h4 className="text-sm font-bold text-[#d93025]">Already Allocated to Priya shah (Engineering)</h4>
-          <p className="text-[0.8rem] text-red-600/80 mt-0.5 font-medium">Direct re-allocation is blocked - submit a transfer request below.</p>
+      {selectedAsset && (selectedAsset.status?.toLowerCase() === 'allocated' || selectedAsset.status?.toLowerCase() === 'assigned') && (
+        <div className="bg-red-50/80 border border-red-100 rounded-xl p-4 flex items-start gap-3 shadow-sm mt-2">
+          <AlertCircle className="w-5 h-5 text-[#d93025] flex-shrink-0 mt-0.5" fill="currentColor" stroke="white" />
+          <div>
+            <h4 className="text-sm font-bold text-[#d93025]">Already Allocated to Priya Shah (Engineering)</h4>
+            <p className="text-[0.8rem] text-red-600/80 mt-0.5 font-medium">Direct re-allocation is blocked - submit a transfer request below.</p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Grid */}
       <div className="grid grid-cols-3 gap-6">
@@ -69,16 +80,41 @@ export default function Allocation() {
           {/* Asset Identification */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
             <h3 className="text-[1.1rem] font-extrabold text-slate-800 mb-6">Asset Identification</h3>
-            <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-4 flex items-center justify-between">
-              <div>
-                <p className="text-[0.7rem] font-bold text-slate-500 tracking-wide mb-1.5">Asset</p>
-                <div className="flex items-center gap-3">
-                  <Laptop className="w-5 h-5 text-[#2b1fcc]" />
-                  <span className="font-bold text-slate-800 text-[0.95rem]">AF-0114 - Dell laptop</span>
-                </div>
+            <div className="mb-4">
+              <label className="block text-xs font-bold text-slate-500 mb-2">Select Asset to View/Transfer</label>
+              <div className="relative cursor-pointer group">
+                <select 
+                  value={selectedAssetId} 
+                  onChange={e => setSelectedAssetId(e.target.value)}
+                  className="w-full appearance-none bg-white border border-slate-200 rounded-lg pl-3 pr-10 py-2.5 text-sm text-slate-700 font-medium outline-none hover:border-slate-300 focus:border-[#2b1fcc] focus:ring-2 focus:ring-indigo-500/10 transition-all cursor-pointer"
+                >
+                  <option value="" disabled hidden>Choose Asset...</option>
+                  {assets && assets.map(asset => (
+                    <option key={asset.id} value={asset.id}>
+                      {asset.tag || `AF-${asset.id}`} - {asset.name} ({asset.status})
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none group-hover:text-slate-700" />
               </div>
-              <span className="px-3 py-1 bg-indigo-50 text-[#2b1fcc] rounded text-[0.7rem] font-extrabold tracking-wide">Active</span>
             </div>
+
+            {selectedAsset && (
+              <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-4 flex items-center justify-between mt-4">
+                <div>
+                  <p className="text-[0.7rem] font-bold text-slate-500 tracking-wide mb-1.5">Asset Detail</p>
+                  <div className="flex items-center gap-3">
+                    <Laptop className="w-5 h-5 text-[#2b1fcc]" />
+                    <span className="font-bold text-slate-800 text-[0.95rem]">
+                      {selectedAsset.tag || `AF-${selectedAsset.id}`} - {selectedAsset.name}
+                    </span>
+                  </div>
+                </div>
+                <span className="px-3 py-1 bg-indigo-50 text-[#2b1fcc] rounded text-[0.7rem] font-extrabold tracking-wide uppercase">
+                  {selectedAsset.status}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Transfer Request */}
@@ -92,7 +128,12 @@ export default function Allocation() {
                 <label className="block text-xs font-bold text-slate-500 mb-2">From</label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                  <input type="text" disabled value="Priya Shah" className="w-full bg-slate-100 border border-slate-200 rounded-lg pl-9 pr-3 py-2.5 text-sm text-slate-500 font-medium outline-none cursor-not-allowed" />
+                  <input 
+                    type="text" 
+                    disabled 
+                    value={selectedAsset && (selectedAsset.status?.toLowerCase() === 'allocated' || selectedAsset.status?.toLowerCase() === 'assigned') ? 'Priya Shah' : 'Unallocated / Available'} 
+                    className="w-full bg-slate-100 border border-slate-200 rounded-lg pl-9 pr-3 py-2.5 text-sm text-slate-500 font-medium outline-none cursor-not-allowed" 
+                  />
                 </div>
               </div>
               <div>

@@ -3,7 +3,8 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Box, ArrowRightLeft,
   CalendarCheck, Wrench, ClipboardCheck, BarChart2,
-  Bell, Settings, Archive, Search, HelpCircle, Plus, FileText
+  Bell, Settings, Archive, Search, HelpCircle, Plus, FileText,
+  Sun, Moon
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import Modal from '../components/Modal';
@@ -20,12 +21,22 @@ export default function DashboardLayout() {
   
   // Settings State
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -130,6 +141,18 @@ export default function DashboardLayout() {
             >
               <Settings className="w-5 h-5" />
             </button>
+            <button 
+              onClick={() => {
+                const nextDark = !darkMode;
+                setDarkMode(nextDark);
+                localStorage.setItem('darkMode', nextDark ? 'true' : 'false');
+                showToast(`Dark Mode ${nextDark ? 'Enabled' : 'Disabled'}`, 'success');
+              }}
+              className="hover:text-slate-700 transition-colors"
+              title="Toggle Theme"
+            >
+              {darkMode ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5" />}
+            </button>
             <div className="w-px h-6 bg-slate-200 mx-2"></div>
             <button 
               onClick={() => {
@@ -173,19 +196,6 @@ export default function DashboardLayout() {
             </div>
           </div>
           
-          <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-lg">
-            <div>
-              <h4 className="text-sm font-bold text-slate-800">Dark Mode</h4>
-              <p className="text-xs text-slate-500 mt-0.5">Toggle dark appearance</p>
-            </div>
-            <div 
-              onClick={() => setDarkMode(!darkMode)}
-              className={`w-10 h-6 rounded-full relative cursor-pointer shadow-inner transition-colors ${darkMode ? 'bg-[#2b1fcc]' : 'bg-slate-200'}`}
-            >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${darkMode ? 'right-1' : 'left-1'}`}></div>
-            </div>
-          </div>
-          
           <div className="mt-4 flex justify-end">
             <button 
               onClick={() => {
@@ -193,6 +203,7 @@ export default function DashboardLayout() {
                 setTimeout(() => {
                   setIsSavingSettings(false);
                   setIsSettingsOpen(false);
+                  localStorage.setItem('darkMode', darkMode ? 'true' : 'false');
                   showToast('Settings saved successfully', 'success');
                 }, 600);
               }}
