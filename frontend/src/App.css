@@ -22,30 +22,22 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #2b2b2b; /* Background outside the dashboard */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
+  background-color: var(--bg-color);
+  margin: 0;
+  padding: 0;
 }
 
 #root {
   width: 100%;
-  display: flex;
-  justify-content: center;
+  height: 100vh;
 }
 
 .dashboard-container {
   width: 100%;
-  max-width: 1400px;
-  height: calc(100vh - 40px);
-  min-height: 800px;
+  height: 100vh;
   background-color: var(--bg-color);
-  border-radius: 24px;
   display: flex;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
 /* Sidebar */
@@ -496,23 +488,15 @@ body {
 /* Login Wrapper & Card */
 .login-wrapper {
   display: flex;
-  justify-content: center;
-  align-items: center;
   width: 100%;
-  min-height: 100vh;
-  background-color: #f8fafc;
-  padding: 20px;
+  height: 100vh;
 }
 
 .login-card {
   display: flex;
-  width: 1100px;
-  max-width: 100%;
-  height: 750px;
+  width: 100%;
+  height: 100%;
   background-color: var(--white);
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
 }
 
 /* Brand Side - V2 */
