@@ -9,6 +9,7 @@ import Booking from './pages/Booking';
 import Allocation from './pages/Allocation';
 import Reports from './pages/Reports';
 import Maintenance from './pages/Maintenance';
+import Audit from './pages/Audit';
 import './App.css';
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/booking" element={<Booking />} />
           <Route path="/allocation" element={<Allocation />} />
           <Route path="/maintenance" element={<Maintenance />} />
+          <Route path="/audit" element={<Audit />} />
           <Route path="/reports" element={<Reports />} />
           
           {/* Catch-all for other sidebar links currently not implemented */}
