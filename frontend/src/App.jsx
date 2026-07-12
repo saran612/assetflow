@@ -1,13 +1,196 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Search, Bell, Settings, Plus, Calendar, FileText,
   LayoutDashboard, Users, Box, Network, CalendarCheck,
   Wrench, ClipboardCheck, BarChart2, AlertTriangle,
-  Laptop, Building2, Car, TrendingUp, MonitorPlay
+  Laptop, Building2, Car, TrendingUp, Mail, Lock,
+  CheckSquare, Square
 } from 'lucide-react';
 import './App.css';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    // Simulate login
+    setIsLoggedIn(true);
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="login-wrapper">
+        <div className="login-card">
+          {/* Brand/Promo Side */}
+          <div className="brand-side">
+            <div className="brand-header">
+              <div className="brand-logo">
+                <div className="brand-logo-icon">
+                  <TrendingUp size={24} />
+                </div>
+                <span>AssetFlow</span>
+              </div>
+            </div>
+            
+            <div className="brand-content">
+              <h1>Enterprise Asset & Resource Management Simplified</h1>
+              <p>
+                Optimize your workspace, track critical inventory, and empower your workforce with our industry-leading resource orchestration platform.
+              </p>
+            </div>
+
+            <div className="brand-stats">
+              <div className="stat-pill">
+                <h3>99.9%</h3>
+                <p>System Uptime</p>
+              </div>
+              <div className="stat-pill">
+                <h3>12k+</h3>
+                <p>Assets Managed</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Form Side */}
+          <div className="form-side">
+            <div className="tab-headers">
+              <button 
+                className={`tab-btn ${!isSignUp ? 'active' : ''}`}
+                onClick={() => setIsSignUp(false)}
+              >
+                SIGN IN
+              </button>
+              <button 
+                className={`tab-btn ${isSignUp ? 'active' : ''}`}
+                onClick={() => setIsSignUp(true)}
+              >
+                CREATE ACCOUNT
+              </button>
+            </div>
+
+            <form onSubmit={handleLogin} className="auth-form">
+              {!isSignUp ? (
+                <>
+                  <div className="input-group">
+                    <label>Work Email</label>
+                    <div className="input-field-wrapper">
+                      <Mail className="input-icon" size={18} />
+                      <input 
+                        type="email" 
+                        placeholder="name@company.com" 
+                        required 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="input-group">
+                    <div className="label-row">
+                      <label>Password</label>
+                      <a href="#" className="forgot-link">Forgot password?</a>
+                    </div>
+                    <div className="input-field-wrapper">
+                      <Lock className="input-icon" size={18} />
+                      <input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        required 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="remember-me-row" onClick={() => setRememberMe(!rememberMe)}>
+                    {rememberMe ? (
+                      <CheckSquare className="checkbox-icon checked" size={18} />
+                    ) : (
+                      <Square className="checkbox-icon" size={18} />
+                    )}
+                    <span>Keep me signed in for 30 days</span>
+                  </div>
+
+                  <button type="submit" className="submit-btn">
+                    Access Dashboard
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="input-group">
+                    <label>Full Name</label>
+                    <div className="input-field-wrapper">
+                      <Users className="input-icon" size={18} />
+                      <input type="text" placeholder="John Doe" required />
+                    </div>
+                  </div>
+
+                  <div className="input-group">
+                    <label>Work Email</label>
+                    <div className="input-field-wrapper">
+                      <Mail className="input-icon" size={18} />
+                      <input type="email" placeholder="name@company.com" required />
+                    </div>
+                  </div>
+
+                  <div className="input-group">
+                    <label>Password</label>
+                    <div className="input-field-wrapper">
+                      <Lock className="input-icon" size={18} />
+                      <input type="password" placeholder="••••••••" required />
+                    </div>
+                  </div>
+
+                  <button type="submit" className="submit-btn">
+                    Create Account
+                  </button>
+                </>
+              )}
+
+              <div className="sso-divider">
+                <span>OR CONTINUE WITH SSO</span>
+              </div>
+
+              <div className="sso-buttons">
+                <button type="button" className="sso-btn">
+                  <svg viewBox="0 0 24 24" width="18" height="18" className="sso-icon">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                  </svg>
+                  Google
+                </button>
+                <button type="button" className="sso-btn">
+                  <svg viewBox="0 0 23 23" width="18" height="18" className="sso-icon" style={{ marginRight: '6px' }}>
+                    <path fill="#F25022" d="M1 1h10v10H1z"/>
+                    <path fill="#7FBA00" d="M12 1h10v10H12z"/>
+                    <path fill="#00A4EF" d="M1 12h10v10H1z"/>
+                    <path fill="#FFB900" d="M12 12h10v10H12z"/>
+                  </svg>
+                  Microsoft
+                </button>
+              </div>
+            </form>
+
+            <footer className="form-footer">
+              <span>© 2024 AssetFlow Inc.</span>
+              <div className="footer-links">
+                <a href="#">Status</a>
+                <a href="#">Help Center</a>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If logged in, render the dashboard
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
@@ -60,6 +243,13 @@ function App() {
             Notifications
           </li>
         </ul>
+
+        {/* Quick logout option */}
+        <div style={{ padding: '0 24px 24px' }}>
+          <button className="btn" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setIsLoggedIn(false)}>
+            Log Out
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
