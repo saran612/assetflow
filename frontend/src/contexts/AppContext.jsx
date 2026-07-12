@@ -59,6 +59,8 @@ export function AppProvider({ children }) {
   const [allocationHistory, setAllocationHistory] = useState(initialAllocationHistory);
 
   const loadAssets = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
     try {
       const data = await apiCall('/assets');
       const mapped = data.map(asset => {
@@ -74,13 +76,24 @@ export function AppProvider({ children }) {
         } else {
           statusName = 'Available';
         }
+
+        let icon = Sofa;
+        let iconBg = 'bg-slate-200 text-slate-500';
+        const catLower = categoryName.toLowerCase();
+        if (catLower.includes('laptop') || catLower.includes('phone') || catLower.includes('monitor') || catLower.includes('electronic')) {
+          icon = Laptop;
+          iconBg = 'bg-indigo-100 text-[#2b1fcc]';
+        }
+
         return {
           ...asset,
           tag: asset.serial_number,
           category: categoryName,
           status: statusName,
           location: asset.employee ? `${asset.employee.first_name} ${asset.employee.last_name}` : 'Warehouse',
-          lastSeen: 'Connected'
+          lastSeen: 'Connected',
+          icon,
+          iconBg
         };
       });
       setAssets(mapped);
@@ -166,7 +179,7 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      assets, setAssets, addAsset,
+      assets, setAssets, addAsset, loadAssets,
       boardData, setBoardData, updateMaintenanceStatus,
       bookings, addBooking,
       allocationHistory, addAllocationEntry

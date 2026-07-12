@@ -9,7 +9,7 @@ import { useAppContext } from '../contexts/AppContext';
 export default function Allocation() {
   const [mounted, setMounted] = useState(false);
   const { showToast } = useToast();
-  const { assets, allocationHistory, addAllocationEntry } = useAppContext();
+  const { assets, allocationHistory, addAllocationEntry, loadAssets } = useAppContext();
   
   // Form State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,6 +18,7 @@ export default function Allocation() {
 
   useEffect(() => {
     setMounted(true);
+    loadAssets();
   }, []);
 
   useEffect(() => {

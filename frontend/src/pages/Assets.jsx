@@ -17,12 +17,30 @@ import { apiCall } from '../utils/api';
 export default function Assets() {
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { assets, addAsset } = useAppContext();
+  const { assets, addAsset, loadAssets } = useAppContext();
   const { showToast } = useToast();
   
   const [kpis, setKpis] = useState({ total_assets: 0, allocated_assets: 0, maintenance_assets: 0, available_assets: 0 });
+  const [selectedAssetDetail, setSelectedAssetDetail] = useState(null);
+
+  const handleStatusChangeInDetail = async (newStatus) => {
+    try {
+      await apiCall(`/assets/${selectedAssetDetail.id}/status`, 'PATCH', { status: newStatus });
+      showToast(`Asset status successfully updated to ${newStatus}`, 'success');
+      await loadAssets();
+      setSelectedAssetDetail(prev => ({
+        ...prev,
+        status: newStatus === 'under_maintenance' ? 'Maintenance' : newStatus.charAt(0).toUpperCase() + newStatus.slice(1)
+      }));
+      await loadKpis();
+    } catch (err) {
+      showToast(err.message || 'Failed to update asset status', 'error');
+    }
+  };
 
   const loadKpis = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
     try {
       const data = await apiCall('/dashboard/kpis');
       setKpis(data);
@@ -32,6 +50,7 @@ export default function Assets() {
   };
 
   useEffect(() => {
+    loadAssets();
     loadKpis();
   }, []);
   
@@ -251,7 +270,11 @@ export default function Assets() {
                   <td colSpan={6} className="py-8 text-center text-slate-500 font-medium">No assets found matching your criteria.</td>
                 </tr>
               ) : paginatedAssets.map((asset) => (
-                <tr key={asset.id} className="hover:bg-slate-50/50 transition-colors duration-150 group cursor-pointer">
+                <tr 
+                  key={asset.id} 
+                  onClick={() => setSelectedAssetDetail(asset)}
+                  className="hover:bg-slate-50/50 transition-colors duration-150 group cursor-pointer"
+                >
                   <td className={`px-6 ${density === 'compact' ? 'py-3' : 'py-6'}`}>
                     <span className="font-bold text-slate-700 text-[0.8rem]">{asset.tag}</span>
                   </td>
@@ -384,6 +407,89 @@ export default function Assets() {
           </div>
         </form>
       </Modal>
+
+      {/* Asset Detail Modal */}
+      {selectedAssetDetail && (
+        <Modal 
+          isOpen={!!selectedAssetDetail} 
+          onClose={() => setSelectedAssetDetail(null)} 
+          title="Asset Detailed Information"
+        >
+          <div className="flex flex-col gap-6">
+            
+            {/* Header Info */}
+            <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="w-12 h-12 bg-indigo-100 text-[#2b1fcc] rounded-xl flex items-center justify-center">
+                <Laptop className="w-6 h-6 animate-pulse" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-base font-extrabold text-slate-800 truncate">{selectedAssetDetail.name}</h4>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">Serial: {selectedAssetDetail.tag}</p>
+              </div>
+            </div>
+
+            {/* Grid Attributes */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="border border-slate-100 p-3 rounded-lg bg-slate-50/20">
+                <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wide">Category</span>
+                <p className="text-sm font-bold text-slate-700 mt-1">{selectedAssetDetail.category}</p>
+              </div>
+              <div className="border border-slate-100 p-3 rounded-lg bg-slate-50/20">
+                <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wide">Current Status</span>
+                <p className="text-sm font-bold text-slate-700 mt-1">
+                  <span className={`inline-flex px-2 py-0.5 rounded text-xs font-bold ${getStatusStyle(selectedAssetDetail.status)}`}>
+                    {selectedAssetDetail.status}
+                  </span>
+                </p>
+              </div>
+              <div className="border border-slate-100 p-3 rounded-lg bg-slate-50/20 col-span-2">
+                <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wide">Location / Custodian</span>
+                <p className="text-sm font-bold text-slate-700 mt-1 capitalize">{selectedAssetDetail.location || 'Warehouse'}</p>
+              </div>
+            </div>
+
+            {/* Related Actions */}
+            <div className="border-t border-slate-100 pt-4">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Related Actions</h4>
+              <div className="flex flex-wrap gap-2">
+                {selectedAssetDetail.status?.toLowerCase() !== 'available' && (
+                  <button 
+                    onClick={() => handleStatusChangeInDetail('available')}
+                    className="px-3.5 py-2 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-100"
+                  >
+                    Set Available
+                  </button>
+                )}
+                {selectedAssetDetail.status?.toLowerCase() !== 'under_maintenance' && selectedAssetDetail.status?.toLowerCase() !== 'maintenance' && (
+                  <button 
+                    onClick={() => handleStatusChangeInDetail('under_maintenance')}
+                    className="px-3.5 py-2 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors border border-orange-100"
+                  >
+                    Send to Maintenance
+                  </button>
+                )}
+                {selectedAssetDetail.status?.toLowerCase() !== 'retired' && (
+                  <button 
+                    onClick={() => handleStatusChangeInDetail('retired')}
+                    className="px-3.5 py-2 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-100"
+                  >
+                    Retire Asset
+                  </button>
+                )}
+                {selectedAssetDetail.status?.toLowerCase() !== 'disposed' && (
+                  <button 
+                    onClick={() => handleStatusChangeInDetail('disposed')}
+                    className="px-3.5 py-2 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-100"
+                  >
+                    Dispose Asset
+                  </button>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

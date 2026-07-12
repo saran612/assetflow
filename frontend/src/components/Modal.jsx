@@ -14,7 +14,6 @@ export default function Modal({ isOpen, onClose, title, children }) {
     if (isOpen) {
       previousFocusRef.current = document.activeElement;
       setShouldRender(true);
-      document.body.style.overflow = 'hidden';
 
       // Double-rAF to ensure the element is painted at its initial (inactive) state
       // before the active state triggers the CSS transition.
@@ -28,7 +27,6 @@ export default function Modal({ isOpen, onClose, title, children }) {
       setIsActive(false);
       const exitTimer = setTimeout(() => {
         setShouldRender(false);
-        document.body.style.overflow = 'unset';
         // Return focus to the element that originally triggered the modal
         if (previousFocusRef.current && typeof previousFocusRef.current.focus === 'function') {
           previousFocusRef.current.focus();

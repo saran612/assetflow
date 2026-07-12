@@ -5,7 +5,7 @@ import { useToast } from '../contexts/ToastContext';
 
 export default function Login() {
   const [mounted, setMounted] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(true);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export default function Login() {
     setMounted(true);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -35,20 +35,64 @@ export default function Login() {
 
     setIsLoading(true);
     
-    // Simulate network latency
-    setTimeout(() => {
-      setIsLoading(false);
-      
+    try {
       if (isSignUp) {
+        // Sign up payload
+        const names = formData.fullName.trim().split(' ');
+        const firstName = names[0] || '';
+        const lastName = names.slice(1).join(' ') || '';
+        
+        const response = await fetch('http://localhost:8000/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            first_name: firstName,
+            last_name: lastName
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.detail || 'Sign up failed');
+        }
+        
         setIsSignUp(false);
         setFormData({ fullName: '', email: formData.email, password: '', terms: false });
         showToast('Account created successfully! Please sign in.', 'success');
       } else {
-        localStorage.setItem('token', 'mock_token_123');
+        // Login payload
+        const formBody = new URLSearchParams();
+        formBody.append('username', formData.email);
+        formBody.append('password', formData.password);
+        
+        const response = await fetch('http://localhost:8000/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: formBody
+        });
+        
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.detail || 'Invalid email or password');
+        }
+        
+        const data = await response.json();
+        localStorage.setItem('token', data.access_token);
+        
         showToast('Successfully signed in.', 'success');
         navigate('/dashboard');
       }
-    }, 800);
+    } catch (err) {
+      setError(err.message || 'Authentication failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleMode = (e) => {
