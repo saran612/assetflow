@@ -43,14 +43,25 @@ const initialBoardData = [
   }
 ];
 
+const initialBookings = [
+  { id: 1, title: 'Procurement Team', date: '2026-07-07', startTime: '09:00', endTime: '10:00', resource: 'Conference Room B2', recurring: true },
+  { id: 2, title: 'Conflict Request', date: '2026-07-07', startTime: '09:30', endTime: '10:30', resource: 'Conference Room B2', conflict: true }
+];
+
+const initialAllocationHistory = [
+  { id: 1, date: 'Mar 12, 2023', action: 'Allocated to', person: 'Priya shah', dept: 'Engineering', active: true },
+  { id: 2, date: 'Jan 04, 2023', action: 'Returned by', person: 'Arjun Nair', dept: null, condition: 'good', active: false }
+];
+
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
   const [assets, setAssets] = useState(initialAssets);
   const [boardData, setBoardData] = useState(initialBoardData);
+  const [bookings, setBookings] = useState(initialBookings);
+  const [allocationHistory, setAllocationHistory] = useState(initialAllocationHistory);
 
   const addAsset = (newAsset) => {
-    // Determine icon based on category loosely
     let icon = Sofa;
     if (newAsset.category === 'Electronics') icon = Laptop;
     
@@ -63,10 +74,32 @@ export function AppProvider({ children }) {
     }, ...prev]);
   };
 
+  const addBooking = (booking) => {
+    setBookings(prev => [...prev, {
+      ...booking,
+      id: Date.now(),
+      resource: 'Conference Room B2',
+      conflict: false,
+      recurring: false
+    }]);
+  };
+
+  const addAllocationEntry = (entry) => {
+    setAllocationHistory(prev => [{
+      id: Date.now(),
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      action: 'Transferred to',
+      person: entry.to,
+      dept: null,
+      condition: null,
+      reason: entry.reason,
+      active: true
+    }, ...prev.map(h => ({ ...h, active: false }))]);
+  };
+
   const updateMaintenanceStatus = (cardId, newColumnId) => {
     setBoardData(prevBoard => {
       let movedCard = null;
-      // Remove from old column
       const removedBoard = prevBoard.map(col => {
         const cardIndex = col.cards.findIndex(c => c.id === cardId);
         if (cardIndex > -1) {
@@ -78,7 +111,6 @@ export function AppProvider({ children }) {
 
       if (!movedCard) return prevBoard;
 
-      // Add to new column
       return removedBoard.map(col => {
         if (col.id === newColumnId) {
           return { ...col, cards: [movedCard, ...col.cards] };
@@ -91,7 +123,9 @@ export function AppProvider({ children }) {
   return (
     <AppContext.Provider value={{
       assets, setAssets, addAsset,
-      boardData, setBoardData, updateMaintenanceStatus
+      boardData, setBoardData, updateMaintenanceStatus,
+      bookings, addBooking,
+      allocationHistory, addAllocationEntry
     }}>
       {children}
     </AppContext.Provider>

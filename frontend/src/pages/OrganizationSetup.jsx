@@ -35,6 +35,7 @@ export default function OrganizationSetup() {
   const [categories, setCategories] = useState(initialCategories);
   const [employees, setEmployees] = useState(initialEmployees);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,19 +46,37 @@ export default function OrganizationSetup() {
 
   // Form State
   const [formData, setFormData] = useState({ name: '', headName: '', headTitle: '', parentDept: '--', status: 'Active' });
+  const [catFormData, setCatFormData] = useState({ name: '' });
+  const [empFormData, setEmpFormData] = useState({ name: '', dept: 'Engineering' });
+  const [filterFormStatus, setFilterFormStatus] = useState('All');
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const filteredDepartments = departments.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || d.headName.toLowerCase().includes(searchQuery.toLowerCase()));
-  const filteredCategories = categories.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
-  const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()) || e.dept.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredDepartments = departments.filter(d => {
+    const matchSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase()) || d.headName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = filterStatus === 'All' || d.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
+  const filteredCategories = categories.filter(c => {
+    const matchSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = filterStatus === 'All' || c.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
+  const filteredEmployees = employees.filter(e => {
+    const matchSearch = e.name.toLowerCase().includes(searchQuery.toLowerCase()) || e.dept.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = filterStatus === 'All' || e.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
 
   const openAddModal = (type = 'department') => {
     setModalMode('add');
     setModalType(type);
     setFormData({ name: '', headName: '', headTitle: '', parentDept: '--', status: 'Active' });
+    setCatFormData({ name: '' });
+    setEmpFormData({ name: '', dept: 'Engineering' });
+    setFilterFormStatus(filterStatus);
     setIsModalOpen(true);
   };
 
@@ -91,10 +110,30 @@ export default function OrganizationSetup() {
           showToast('Department updated successfully', 'success');
         }
       } else if (modalType === 'category') {
+        const newCat = {
+          id: Date.now(),
+          name: catFormData.name.toUpperCase(),
+          items: 0,
+          status: 'Active',
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          color: 'bg-indigo-500'
+        };
+        setCategories(prev => [...prev, newCat]);
         showToast('Category added successfully', 'success');
       } else if (modalType === 'employee') {
+        const newEmp = {
+          id: Date.now(),
+          name: empFormData.name.toLowerCase(),
+          title: 'New Hire',
+          dept: empFormData.dept,
+          email: `${empFormData.name.toLowerCase().replace(/\s+/g, '.')}@assetflow.co`,
+          status: 'Active',
+          avatar: Math.floor(Math.random() * 50).toString()
+        };
+        setEmployees(prev => [...prev, newEmp]);
         showToast('Employee added successfully', 'success');
       } else if (modalType === 'filter') {
+        setFilterStatus(filterFormStatus);
         showToast('Filters applied successfully', 'success');
       }
       setIsSubmitting(false);
@@ -501,7 +540,7 @@ export default function OrganizationSetup() {
               {modalType === 'category' && (
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Category Name</label>
-                  <input type="text" required placeholder="e.g. IT Equipment" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
+                  <input type="text" required placeholder="e.g. IT Equipment" value={catFormData.name} onChange={e => setCatFormData({ name: e.target.value })} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
                 </div>
               )}
 
@@ -509,11 +548,11 @@ export default function OrganizationSetup() {
                 <>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Employee Name</label>
-                    <input type="text" required placeholder="e.g. John Doe" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
+                    <input type="text" required placeholder="e.g. John Doe" value={empFormData.name} onChange={e => setEmpFormData({...empFormData, name: e.target.value})} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Department</label>
-                    <select className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
+                    <select value={empFormData.dept} onChange={e => setEmpFormData({...empFormData, dept: e.target.value})} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
                       <option>Engineering</option>
                       <option>Facilities</option>
                       <option>Field Ops</option>
@@ -525,10 +564,10 @@ export default function OrganizationSetup() {
               {modalType === 'filter' && (
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status</label>
-                  <select className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
-                    <option>All</option>
-                    <option>Active Only</option>
-                    <option>Inactive Only</option>
+                  <select value={filterFormStatus} onChange={e => setFilterFormStatus(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none">
+                    <option value="All">All</option>
+                    <option value="Active">Active Only</option>
+                    <option value="Inactive">Inactive Only</option>
                   </select>
                 </div>
               )}
