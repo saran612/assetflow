@@ -56,6 +56,8 @@ class Asset(Base):
     employee = relationship("Employee", back_populates="assets")
     history = relationship("AssetHistory", back_populates="asset", cascade="all, delete-orphan")
     transfers = relationship("AssetTransfer", back_populates="asset", cascade="all, delete-orphan")
+    bookings = relationship("AssetBooking", back_populates="asset", cascade="all, delete-orphan")
+    maintenances = relationship("AssetMaintenance", back_populates="asset", cascade="all, delete-orphan")
 
 
 class AssetHistory(Base):
@@ -89,3 +91,33 @@ class AssetTransfer(Base):
     source_employee = relationship("Employee", foreign_keys=[source_employee_id])
     target_employee = relationship("Employee", foreign_keys=[target_employee_id])
     requested_by = relationship("Employee", foreign_keys=[requested_by_id])
+
+
+class AssetBooking(Base):
+    __tablename__ = "asset_bookings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
+    start_time = Column(DateTime(timezone=True), nullable=False)
+    end_time = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    asset = relationship("Asset", back_populates="bookings")
+    employee = relationship("Employee")
+
+
+class AssetMaintenance(Base):
+    __tablename__ = "asset_maintenances"
+
+    id = Column(Integer, primary_key=True, index=True)
+    asset_id = Column(Integer, ForeignKey("assets.id"), nullable=False)
+    requester_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
+    description = Column(String, nullable=False)
+    status = Column(String, default="pending", nullable=False)  # 'pending', 'approved', 'technician_assigned', 'in_progress', 'resolved'
+    technician_name = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    resolved_at = Column(DateTime(timezone=True), nullable=True)
+
+    asset = relationship("Asset", back_populates="maintenances")
+    requester = relationship("Employee")

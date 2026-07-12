@@ -5,7 +5,7 @@ from app.database import engine, Base, SessionLocal
 from app.seed import seed_db
 from fastapi.staticfiles import StaticFiles
 import os
-from app.routers import auth, org, assets, allocations, transfers
+from app.routers import auth, org, assets, allocations, transfers, bookings, maintenance
 from app.auth import get_current_employee
 from app.models import Employee
 from app.schemas import EmployeeResponse
@@ -52,6 +52,8 @@ app.include_router(org.router)
 app.include_router(assets.router)
 app.include_router(allocations.router)
 app.include_router(transfers.router)
+app.include_router(bookings.router)
+app.include_router(maintenance.router)
 
 @app.get("/")
 def read_root():
