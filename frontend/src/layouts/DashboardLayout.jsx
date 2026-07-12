@@ -62,13 +62,13 @@ export default function DashboardLayout() {
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Organization', path: '/organization-setup', icon: Building2 },
+    { name: 'Organization Setup', path: '/organization-setup', icon: Building2 },
     { name: 'Assets', path: '/assets', icon: Box },
-    { name: 'Allocation', path: '/allocation', icon: ArrowRightLeft },
-    { name: 'Booking', path: '/booking', icon: CalendarCheck },
+    { name: 'Allocation & Transfer', path: '/allocation', icon: ArrowRightLeft },
+    { name: 'Resource Booking', path: '/booking', icon: CalendarCheck },
     { name: 'Maintenance', path: '/maintenance', icon: Wrench },
     { name: 'Audit', path: '/audit', icon: ClipboardCheck },
-    { name: 'Reports', path: '/reports', icon: BarChart2 },
+    { name: 'Report', path: '/reports', icon: BarChart2 },
     { name: 'Notifications', path: '/notifications', icon: Bell },
   ];
 
@@ -196,10 +196,7 @@ export default function DashboardLayout() {
             </button>
             <div className="w-px h-6 bg-slate-200 mx-2"></div>
             <button 
-              onClick={() => {
-                showToast('Please use the Register Asset button on the Assets page.', 'success');
-                navigate('/assets');
-              }}
+              onClick={() => setIsAddAssetOpen(true)}
               className="bg-[#2b1fcc] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-[#2015a3] hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
             >
               <Plus className="w-4 h-4 stroke-[3]" /> Add New Asset
@@ -291,6 +288,69 @@ export default function DashboardLayout() {
             </button>
           </div>
         </div>
+      </Modal>
+
+      {/* Add New Asset Modal */}
+      <Modal isOpen={isAddAssetOpen} onClose={() => setIsAddAssetOpen(false)} title="Register New Asset">
+        <form onSubmit={handleAddAssetSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Asset Name</label>
+            <input 
+              type="text" required placeholder="e.g. MacBook Pro 16\" value={assetFormData.name} onChange={e => setAssetFormData({...assetFormData, name: e.target.value})}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Asset Tag / Serial</label>
+              <input 
+                type="text" required placeholder="e.g. SN-991283" value={assetFormData.tag} onChange={e => setAssetFormData({...assetFormData, tag: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Category</label>
+              <select 
+                value={assetFormData.category} onChange={e => setAssetFormData({...assetFormData, category: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              >
+                <option value="Electronics">Electronics</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Vehicles">Vehicles</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Location</label>
+              <input 
+                type="text" required placeholder="e.g. Warehouse" value={assetFormData.location} onChange={e => setAssetFormData({...assetFormData, location: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Status</label>
+              <select 
+                value={assetFormData.status} onChange={e => setAssetFormData({...assetFormData, status: e.target.value})}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2b1fcc]/20 focus:border-[#2b1fcc] outline-none"
+              >
+                <option value="Available">Available</option>
+                <option value="Allocated">Allocated</option>
+                <option value="Maintenance">Maintenance</option>
+              </select>
+            </div>
+          </div>
+          <div className="mt-4 flex gap-3 justify-end">
+            <button type="button" onClick={() => setIsAddAssetOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+            <button 
+              type="submit" 
+              disabled={isSubmittingAsset}
+              className={`px-6 py-2 text-sm font-bold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-all shadow-sm ${isSubmittingAsset ? 'opacity-80' : ''}`}
+            >
+              {isSubmittingAsset ? 'Processing...' : 'Register Asset'}
+            </button>
+          </div>
+        </form>
       </Modal>
     </div>
   );

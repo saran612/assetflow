@@ -51,6 +51,7 @@ export default function OrganizationSetup() {
   const [catFormData, setCatFormData] = useState({ name: '' });
   const [empFormData, setEmpFormData] = useState({ name: '', dept: 'Engineering' });
   const [filterFormStatus, setFilterFormStatus] = useState('All');
+  const [selectedEmployeeDetail, setSelectedEmployeeDetail] = useState(null);
 
   useEffect(() => {
     setMounted(true);
@@ -431,10 +432,16 @@ export default function OrganizationSetup() {
                   {filteredEmployees.length === 0 ? (
                      <tr><td colSpan={5} className="py-8 text-center text-slate-500">No employees found matching your search.</td></tr>
                   ) : filteredEmployees.map((emp) => (
-                    <tr key={emp.id} className="group hover:bg-slate-50/80 transition-colors duration-150 cursor-pointer">
+                    <tr 
+                      key={emp.id} 
+                      onClick={() => setSelectedEmployeeDetail(emp)}
+                      className="group hover:bg-slate-50/80 transition-colors duration-150 cursor-pointer"
+                    >
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <img src={`https://i.pravatar.cc/150?img=${emp.avatar}`} alt={emp.name} className="w-9 h-9 rounded-full shadow-sm" />
+                          <div className="w-9 h-9 bg-indigo-50 text-[#2b1fcc] rounded-full flex items-center justify-center font-bold text-sm uppercase shadow-sm">
+                            {emp.name.charAt(0)}
+                          </div>
                           <div>
                             <div className="font-semibold text-slate-900 text-sm capitalize">{emp.name}</div>
                             <div className="text-[0.75rem] text-slate-500">{emp.title}</div>
@@ -582,6 +589,50 @@ export default function OrganizationSetup() {
           </div>
         </form>
       </Modal>
+
+      {/* Employee Details Modal */}
+      {selectedEmployeeDetail && (
+        <Modal 
+          isOpen={!!selectedEmployeeDetail} 
+          onClose={() => setSelectedEmployeeDetail(null)} 
+          title="Employee Details"
+        >
+          <div className="flex flex-col gap-6">
+            
+            {/* Header Info */}
+            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="w-12 h-12 bg-indigo-50 text-[#2b1fcc] rounded-xl flex items-center justify-center font-bold text-lg uppercase shadow-inner">
+                {selectedEmployeeDetail.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-base font-extrabold text-slate-800 capitalize truncate">{selectedEmployeeDetail.name}</h4>
+                <p className="text-xs text-slate-500 font-bold mt-0.5">{selectedEmployeeDetail.title || 'Staff Member'}</p>
+              </div>
+            </div>
+
+            {/* Attributes Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="border border-slate-100 p-3 rounded-lg bg-slate-50/20">
+                <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wide">Email Address</span>
+                <p className="text-sm font-bold text-slate-700 mt-1 break-all">{selectedEmployeeDetail.email}</p>
+              </div>
+              <div className="border border-slate-100 p-3 rounded-lg bg-slate-50/20">
+                <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wide">Department</span>
+                <p className="text-sm font-bold text-slate-700 mt-1">{selectedEmployeeDetail.dept}</p>
+              </div>
+              <div className="border border-slate-100 p-3 rounded-lg bg-slate-50/20 col-span-2">
+                <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wide">Current Status</span>
+                <p className="text-sm font-bold text-slate-700 mt-1">
+                  <span className={`inline-flex px-2 py-0.5 rounded text-xs font-bold ${selectedEmployeeDetail.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                    {selectedEmployeeDetail.status}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </Modal>
+      )}
 
       <style>{`
         @keyframes pulse-soft {
