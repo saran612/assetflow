@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Box, ArrowRightLeft,
   CalendarCheck, Wrench, ClipboardCheck, BarChart2,
-  Bell, Settings, Archive, Search, HelpCircle, Plus
+  Bell, Settings, Archive, Search, HelpCircle, Plus, FileText
 } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
+import Modal from '../components/Modal';
 
 export default function DashboardLayout() {
   const [mounted, setMounted] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  
+  // Overlay States
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  
+  // Settings State
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
   
   useEffect(() => {
     setMounted(true);
@@ -96,10 +109,26 @@ export default function DashboardLayout() {
             <input type="text" placeholder="Search resources, bookings, or assets..." className="w-full bg-slate-100/50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-[0.85rem] outline-none hover:bg-white focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-[#2b1fcc] transition-all shadow-sm" />
           </div>
           <div className="flex items-center gap-4 text-slate-400">
-            <button className="hover:text-slate-700 transition-colors"><HelpCircle className="w-5 h-5" /></button>
-            <button className="hover:text-slate-700 transition-colors"><Settings className="w-5 h-5" /></button>
+            <button 
+              onClick={() => setIsHelpOpen(true)}
+              className="hover:text-slate-700 transition-colors"
+            >
+              <HelpCircle className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={() => setIsSettingsOpen(true)}
+              className="hover:text-slate-700 transition-colors"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
             <div className="w-px h-6 bg-slate-200 mx-2"></div>
-            <button className="bg-[#2b1fcc] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-[#2015a3] hover:shadow-lg transition-all active:scale-95 flex items-center gap-2">
+            <button 
+              onClick={() => {
+                showToast('Please use the Register Asset button on the Assets page.', 'success');
+                navigate('/assets');
+              }}
+              className="bg-[#2b1fcc] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-md shadow-indigo-500/20 hover:bg-[#2015a3] hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
+            >
               <Plus className="w-4 h-4 stroke-[3]" /> Add New Asset
             </button>
           </div>
@@ -116,6 +145,92 @@ export default function DashboardLayout() {
           <Outlet />
         </div>
       </main>
+
+      {/* Settings Modal */}
+      <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} title="System Settings">
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-slate-500 mb-2">Configure your preferences and system options here.</p>
+          
+          <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-lg">
+            <div>
+              <h4 className="text-sm font-bold text-slate-800">Email Notifications</h4>
+              <p className="text-xs text-slate-500 mt-0.5">Receive updates about your assets</p>
+            </div>
+            <div 
+              onClick={() => setEmailNotifications(!emailNotifications)}
+              className={`w-10 h-6 rounded-full relative cursor-pointer shadow-inner transition-colors ${emailNotifications ? 'bg-[#2b1fcc]' : 'bg-slate-200'}`}
+            >
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${emailNotifications ? 'right-1' : 'left-1'}`}></div>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-lg">
+            <div>
+              <h4 className="text-sm font-bold text-slate-800">Dark Mode</h4>
+              <p className="text-xs text-slate-500 mt-0.5">Toggle dark appearance</p>
+            </div>
+            <div 
+              onClick={() => setDarkMode(!darkMode)}
+              className={`w-10 h-6 rounded-full relative cursor-pointer shadow-inner transition-colors ${darkMode ? 'bg-[#2b1fcc]' : 'bg-slate-200'}`}
+            >
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${darkMode ? 'right-1' : 'left-1'}`}></div>
+            </div>
+          </div>
+          
+          <div className="mt-4 flex justify-end">
+            <button 
+              onClick={() => {
+                setIsSavingSettings(true);
+                setTimeout(() => {
+                  setIsSavingSettings(false);
+                  setIsSettingsOpen(false);
+                  showToast('Settings saved successfully', 'success');
+                }, 600);
+              }}
+              disabled={isSavingSettings}
+              className={`px-6 py-2 text-sm font-bold text-white bg-[#2b1fcc] hover:bg-[#2015a3] rounded-lg transition-all shadow-sm ${isSavingSettings ? 'opacity-80' : ''}`}
+            >
+              {isSavingSettings ? 'Saving...' : 'Save Preferences'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Help Modal */}
+      <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} title="Help & Support">
+        <div className="flex flex-col gap-4">
+          <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex items-start gap-3">
+            <HelpCircle className="w-5 h-5 text-[#2b1fcc] flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="text-sm font-bold text-indigo-900">Need assistance?</h4>
+              <p className="text-xs text-indigo-700 mt-1 leading-relaxed">Our support team is available 24/7 to help you with any issues regarding your enterprise assets.</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3 mt-2">
+            <button 
+              onClick={() => {
+                setIsHelpOpen(false);
+                showToast('Opening Documentation...', 'success');
+              }}
+              className="p-3 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 hover:border-[#2b1fcc] transition-all flex flex-col items-center gap-2"
+            >
+              <FileText className="w-5 h-5 text-slate-400" />
+              Documentation
+            </button>
+            <button 
+              onClick={() => {
+                setIsHelpOpen(false);
+                showToast('Connecting to Support...', 'success');
+              }}
+              className="p-3 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 hover:border-[#2b1fcc] transition-all flex flex-col items-center gap-2"
+            >
+              <HelpCircle className="w-5 h-5 text-slate-400" />
+              Contact Support
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
